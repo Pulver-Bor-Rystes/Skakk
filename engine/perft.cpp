@@ -7,7 +7,7 @@ long perft::nodes = 0;
 void perft::test(int depth)
 {
 
-    printf("\n     Performance test\n\n");
+    cout << "\n     Performance test\n\n";
     
     // Create move list instance
     moves move_list[1];
@@ -21,11 +21,13 @@ void perft::test(int depth)
     // Loop over generated moves
     for (int move_count = 0; move_count < move_list->size; move_count++)
     {   
+        int current_move = move_list->array[move_count];
+
         // Preserve board state
         copy_board();
         
         // make move
-        if (!board::make_move(move_list->array[move_count]))
+        if (!board::make_move(current_move))
             // skip to the next move
             continue;
         
@@ -40,17 +42,14 @@ void perft::test(int depth)
         
         // take back
         revert_board();
+
         
-        // print move
-        printf("     move: %s%s%c  nodes: %ld\n", index_to_square[get_source(move_list->array[move_count])],
-                                                 index_to_square[get_target(move_list->array[move_count])],
-                                                 get_promotion_piece_type(move_list->array[move_count]) ? promoted_pieces[get_promotion_piece_type(move_list->array[move_count])] : ' ',
-                                                 old_nodes);
+        cout << "     move: " << format::move(current_move) << "  nodes: " << old_nodes << endl;
     }
     
     // print results
-    printf("\n    Depth: %d\n", depth);
-    printf("    Nodes: %ld\n", nodes);
-    cout << "     Time: " << timer.get_time_passed_millis() << " milliseconds" << endl;
+    cout << "\n    Depth: " << depth;
+    cout << "\n    Nodes: " << nodes;
+    cout << "\n     Time: " << timer.get_time_passed_millis() << " milliseconds" << endl;
 }
 

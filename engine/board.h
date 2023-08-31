@@ -782,6 +782,8 @@ namespace board
         return alpha;
     }
 
+    extern int current_eval;
+
     static inline int negamax(int alpha, int beta, int depth)
     {
         // Check if command should terminate based on time spend calculating
@@ -886,6 +888,8 @@ namespace board
                 }
 
                 alpha = score;
+
+                current_eval = score;
 
                 pv_table[ply][ply] = current_move;
 

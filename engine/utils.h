@@ -6,6 +6,11 @@
     for printing various chess elements
 */
 
+namespace format {
+    string eval();
+    string move(int move);
+}
+
 namespace print {
     void move(int move);
     void all_moves(moves *move_list);
@@ -13,6 +18,7 @@ namespace print {
     void game();
     void attacked_squares(int side);
 }
+
 
 class Timer {
 public:

@@ -75,8 +75,8 @@ void uci::parse_json(string input)
 
                 move_data["source_square"] = index_to_square[get_source(move)];
                 move_data["target_square"] = index_to_square[get_target(move)];
-                move_data["piece_type"] = string(1, ascii_pieces[get_piece(move)]);
-                move_data["promotion_piece_type"] = string(1, ascii_pieces[get_promotion_piece_type(move)]);
+                move_data["piece_type"] = ascii_pieces[get_piece(move)];
+                move_data["promotion_piece_type"] = ascii_pieces[get_promotion_piece_type(move)];
                 move_data["is_capture"] = is_capture(move) ? true : false;
                 move_data["is_double_pawn_push"] = is_double_pawn_push(move) ? true : false;
                 move_data["is_en_passant"] = is_en_passant(move) ? true : false;
@@ -101,6 +101,7 @@ void uci::parse_position(string input)
         size_t killerpos_i = input.find("killerpos");
         size_t cmkpos_i = input.find("cmkpos");
         size_t rookpos_i = input.find("rookpos");
+        size_t promotionpos_i = input.find("promotionpos");
         size_t fen_i = input.find("fen");
         size_t moves_i = input.find("moves");
         // Get position
@@ -123,6 +124,10 @@ void uci::parse_position(string input)
         else if(rookpos_i != string::npos) 
         {
             board::parse_fen(rook_position);
+        }
+        else if(promotionpos_i != string::npos) 
+        {
+            board::parse_fen(promotion_position);
         }
         else if (fen_i != string::npos)
         {
@@ -193,8 +198,9 @@ void uci::parse_go(string input)
             inc = stoi(input.substr(binc_i + 5));
         }
 
+        timer.reset();
+
         if(time != -1) {
-            timer.reset();
             use_time = true;
 
             // - 100 is a small offset to counteract the

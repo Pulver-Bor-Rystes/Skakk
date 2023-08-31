@@ -15,11 +15,17 @@ int main()
 
     if (debugging)
     {
-        board::parse_fen(tricky_position);
+        board::parse_fen(promotion_position);
         print::game();
 
-        board::search_position(7);
+        moves move_list[1];
+        board::generate_moves(move_list);
+        print::all_moves(move_list);
+        print::bitboard(board::bitboards[5]);
+        print::game();
+        print::attacked_squares(white);
 
+        uci::parse_json("json movedata");
     }
 
     else

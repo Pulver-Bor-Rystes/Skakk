@@ -118,6 +118,7 @@ void board::parse_fen(string fen)
 
 int board::ply = 0;
 long board::nodes = 0;
+int board::current_eval = 0;
 
 void board::search_position(int depth)
 {
@@ -141,6 +142,7 @@ void board::search_position(int depth)
         memcpy(&candidate_pv_table_copy, &pv_table, sizeof(pv_table));
         memcpy(&candidate_pv_length_copy, &pv_length, sizeof(pv_length));
 
+        board::current_eval = 0;
         board::nodes = 0;
 
         int score = board::negamax(alpha, beta, current_depth);
@@ -155,8 +157,11 @@ void board::search_position(int depth)
 
         alpha = score - bound_wiggle_room;
         alpha = score + bound_wiggle_room;
+
+        cout << endl;
         if(!stop_calculating) {
             cout << "Found best move at depth " << current_depth << " looking through " << board::nodes << " nodes" << endl;
+            cout << "Evaluation: " << format::eval() << endl;
         }
         else {
             cout << "Interrupted by time at depth " << current_depth << " looking through " << board::nodes << " nodes" << endl;
@@ -164,13 +169,10 @@ void board::search_position(int depth)
         cout << "Total time passed: " << timer.get_time_passed_millis() << " milliseconds." << endl;
         for (int i = 0; i < pv_length[0]; i++)
         {
-            print::move(pv_table[0][i]);
-            cout << " ";
+            cout << format::move(pv_table[0][i]) << " ";
         }
-        cout << endl;
+        if(pv_length[0]) cout << endl;
     }
 
-    cout << "bestmove ";
-    print::move(candidate_pv_table_copy[0][0]);
-    cout << "\n\n";
+    cout << "\nbestmove " << format::move(candidate_pv_table_copy[0][0]) << "\n\n";
 }

@@ -1,41 +1,56 @@
 #include "utils.h"
 #include "board.h"
 #include "limits"
+#include <bits/stdc++.h>
+
+string format::eval() {
+    double divided_score = static_cast<double>(board::current_eval) / 100.0;
+    std::string formatted_score = std::to_string(divided_score);
+    size_t dotPosition = formatted_score.find('.');
+    
+    // Ensure there are exactly two decimal places
+    if (dotPosition != std::string::npos && dotPosition + 3 < formatted_score.length()) {
+        formatted_score = formatted_score.substr(0, dotPosition + 3);
+    }
+    
+    return formatted_score;
+}
+
+string format::move(int move) {
+    return index_to_square[get_source(move)] +
+           index_to_square[get_target(move)] + 
+           char(promoted_pieces[get_promotion_piece_type(move)]);
+}
 
 void print::move(int move) {
-    cout
-        << index_to_square[get_source(move)]
-        << index_to_square[get_target(move)]
-        << char(promoted_pieces[get_promotion_piece_type(move)]);
+    cout << format::move(move);
 }
 
 void print::all_moves(moves *move_list) {
 
-    board::sort_moves(move_list);
-
     if(!move_list->size) {
-        cout << "\n    No moves in move list!";
+        cout << "\n     No moves in move list!";
         return;
     }
 
-    cout << "\n    move    piece   capture   double    en passant    castling    score\n\n";
+    cout << "\n     move    piece   capture   double    en passant    castling    score\n\n";
 
     for (int move_count = 0; move_count < move_list->size; move_count++)
     {
         int move = move_list->array[move_count];
-        printf("    %s%s%c   %c       %d         %d         %d             %d           %d\n", 
-        index_to_square[get_source(move)],
-        index_to_square[get_target(move)],
-        promoted_pieces[get_promotion_piece_type(move)],
-        ascii_pieces[get_piece(move)],
-        is_capture(move) ? 1 : 0,
-        is_double_pawn_push(move) ? 1 : 0,
-        is_en_passant(move) ? 1 : 0,
-        is_castling(move) ? 1 : 0,
-        board::score_move(move));
+        
+        cout << "     " << index_to_square[get_source(move)] <<
+        index_to_square[get_target(move)] <<
+        char(promoted_pieces[get_promotion_piece_type(move)]) <<
+        "   " << ascii_pieces[get_piece(move)] << 
+        "       " << (is_capture(move) ? 1 : 0) <<
+        "         " << (is_double_pawn_push(move) ? 1 : 0) <<
+        "         " << (is_en_passant(move) ? 1 : 0) << 
+        "             " << (is_castling(move) ? 1 : 0) << 
+        "           " << (board::score_move(move)) << endl;
     }
     
-    cout << "\n    Total number of moves: " << move_list->size << "\n\n";
+    cout << "\n     Total number of moves: " << move_list->size << "\n\n";
 }
 
 void print::attacked_squares(int side) {
@@ -63,7 +78,7 @@ void print::bitboard(U64 bitboard)
             if (!file)
                 cout << "  " << 8 - rank << " ";
 
-            printf(" %d", get_bit(bitboard, square));
+            cout << " " << get_bit(bitboard, square);
         }
 
         cout << "\n";
@@ -95,7 +110,7 @@ void print::game() {
                 }
             }
 
-            printf(" %c", piece == -1 ? '.' : ascii_pieces[piece]);
+            cout << " " << (piece == -1 ? "." : ascii_pieces[piece]);
 
         }
 
@@ -103,12 +118,13 @@ void print::game() {
     }
 
     cout << "\n     a b c d e f g h\n\n";
-    printf("     Side:     %s\n", board::side == white ? "white" : "black");
-    printf("     en_passant:  %s\n", (board::en_passant != no_sq) ? index_to_square[board::en_passant] : "no");
-    printf("     Castling:  %c%c%c%c\n\n", (board::castle & wk) ? 'K' : '-',
-                                           (board::castle & wq) ? 'Q' : '-',
-                                           (board::castle & bk) ? 'k' : '-',
-                                           (board::castle & bq) ? 'q' : '-');
+    cout << "     Side:        " << (board::side == white ? "white" : "black") << endl;
+    cout << "     en_passant:  " << ((board::en_passant != no_sq) ? index_to_square[board::en_passant] : "no") << endl;
+    cout << "     Castling:    " << ((board::castle & wk) ? 'K' : '-') <<
+                                    ((board::castle & wq) ? 'Q' : '-') <<
+                                    ((board::castle & bk) ? 'k' : '-') <<
+                                    ((board::castle & bq) ? 'q' : '-') <<
+                                    endl;
 }
 
 Timer::Timer() {
