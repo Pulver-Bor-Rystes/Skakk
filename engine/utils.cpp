@@ -3,7 +3,7 @@
 #include "limits"
 #include <bits/stdc++.h>
 
-string format::eval() {
+std::string format::eval() {
     double divided_score = static_cast<double>(board::current_eval) / 100.0;
     std::string formatted_score = std::to_string(divided_score);
     size_t dotPosition = formatted_score.find('.');
@@ -16,7 +16,7 @@ string format::eval() {
     return formatted_score;
 }
 
-string format::move(int move) {
+std::string format::move(int move) {
     return index_to_square[get_source(move)] +
            index_to_square[get_target(move)] + 
            char(promoted_pieces[get_promotion_piece_type(move)]);
@@ -144,4 +144,4 @@ Timer timer;
 
 bool stop_calculating = false;
 bool use_time = false;
-double stop_time = numeric_limits<double>::infinity();
+double stop_time = std::numeric_limits<double>::infinity();

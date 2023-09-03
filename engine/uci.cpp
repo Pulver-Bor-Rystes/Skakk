@@ -21,7 +21,7 @@ void uci::print_engine_info()
 
 void uci::loop()
 {
-    string input;
+    std::string input;
     while (true)
     {
         getline(cin, input);
@@ -53,15 +53,15 @@ void uci::loop()
 }
 
 
-void uci::parse_json(string input)
+void uci::parse_json(std::string input)
 {
     using json = nlohmann::json;
     size_t json_i = input.find("json");
 
-    if (json_i != string::npos)
+    if (json_i != std::string::npos)
     {
         size_t movedata_i = input.find("movedata");
-        if (movedata_i != string::npos)
+        if (movedata_i != std::string::npos)
         {
             moves move_list[1];
             board::generate_moves(move_list);
@@ -90,11 +90,11 @@ void uci::parse_json(string input)
     }
 }
 
-void uci::parse_position(string input)
+void uci::parse_position(std::string input)
 {
     size_t position_i = input.find("position");
 
-    if (position_i != string::npos)
+    if (position_i != std::string::npos)
     {
         size_t startpos_i = input.find("startpos");
         size_t trickypos_i = input.find("trickypos");
@@ -102,40 +102,45 @@ void uci::parse_position(string input)
         size_t cmkpos_i = input.find("cmkpos");
         size_t rookpos_i = input.find("rookpos");
         size_t promotionpos_i = input.find("promotionpos");
+        size_t checkmatepos_i = input.find("checkmatepos");
         size_t fen_i = input.find("fen");
         size_t moves_i = input.find("moves");
         // Get position
-        if (startpos_i != string::npos)
+        if (startpos_i != std::string::npos)
         {
             board::parse_fen(start_position);
         }
-        else if(trickypos_i != string::npos) 
+        else if(trickypos_i != std::string::npos) 
         {
             board::parse_fen(tricky_position);
         }
-        else if(killerpos_i != string::npos) 
+        else if(killerpos_i != std::string::npos) 
         {
             board::parse_fen(killer_position);
         }
-        else if(cmkpos_i != string::npos) 
+        else if(cmkpos_i != std::string::npos) 
         {
             board::parse_fen(cmk_position);
         }
-        else if(rookpos_i != string::npos) 
+        else if(rookpos_i != std::string::npos) 
         {
             board::parse_fen(rook_position);
         }
-        else if(promotionpos_i != string::npos) 
+        else if(promotionpos_i != std::string::npos) 
         {
             board::parse_fen(promotion_position);
         }
-        else if (fen_i != string::npos)
+        else if(checkmatepos_i != std::string::npos) 
+        {
+            board::parse_fen(checkmate_position);
+        }
+        else if (fen_i != std::string::npos)
         {
             board::parse_fen(input.substr(fen_i + 4));
         }
 
         // Make moves if specified
-        if (moves_i != string::npos)
+        if (moves_i != std::string::npos)
         {
             uci::parse_moves(input.substr(moves_i + 6));
         }
@@ -144,11 +149,11 @@ void uci::parse_position(string input)
     }
 }
 
-void uci::parse_go(string input)
+void uci::parse_go(std::string input)
 {
     size_t go_i = input.find("go");
 
-    if (go_i != string::npos)
+    if (go_i != std::string::npos)
     {
         size_t depth_i = input.find("depth");
         size_t perft_i = input.find("perft");
@@ -162,38 +167,38 @@ void uci::parse_go(string input)
         int time = -1;
         int moves_to_go = 30;
         use_time = false;
-        stop_time = numeric_limits<double>::infinity();
+        stop_time = std::numeric_limits<double>::infinity();
 
-        if (depth_i != string::npos)
+        if (depth_i != std::string::npos)
         {
             depth = stoi(input.substr(depth_i + 6));
         }
-        else if (perft_i != string::npos)
+        else if (perft_i != std::string::npos)
         {
             // String to integer
             perft::test(stoi(input.substr(perft_i + 6)));
             return;
         }
-        else if (eval_i != string::npos)
+        else if (eval_i != std::string::npos)
         {
             // String to integer
             cout << board::eval() << endl;
             return;
         }
 
-        if (wtime_i != string::npos && board::side == white)
+        if (wtime_i != std::string::npos && board::side == white)
         {
             time = stoi(input.substr(wtime_i + 6));
         }
-        if (btime_i != string::npos && board::side == black)
+        if (btime_i != std::string::npos && board::side == black)
         {
             time = stoi(input.substr(btime_i + 6));
         }
-        if (winc_i != string::npos && board::side == white)
+        if (winc_i != std::string::npos && board::side == white)
         {
             inc = stoi(input.substr(winc_i + 5));
         }
-        if (binc_i != string::npos && board::side == black)
+        if (binc_i != std::string::npos && board::side == black)
         {
             inc = stoi(input.substr(binc_i + 5));
         }
@@ -216,29 +221,29 @@ void uci::parse_go(string input)
     }
 }
 
-void uci::parse_moves(string input)
+void uci::parse_moves(std::string input)
 {
 
     // Creates a stringstream from the input string
-    stringstream ss(input);
+    std::stringstream ss(input);
 
     // Uses a vector to store the substrings
-    vector<string> substrings;
+    std::vector<std::string> substrings;
 
-    string substring;
+    std::string substring;
 
     // Extracts substrings separated by space and stores them in the vector
     while (ss >> substring)
         substrings.push_back(substring);
 
-    for (const string &str : substrings)
+    for (const std::string &str : substrings)
     {
         if (uci::parse_move(str))
             board::make_move(uci::parse_move(str));
     }
 }
 
-int uci::parse_move(string move_string)
+int uci::parse_move(std::string move_string)
 {
 
     int source_square = move_string[0] - 'a' + (8 - (move_string[1] - '0')) * 8;

@@ -14,7 +14,7 @@ int board::en_passant = no_sq;
 // Castling rights
 int board::castle = 0;
 
-void board::parse_fen(string fen)
+void board::parse_fen(std::string fen)
 {
     memset(bitboards, 0ULL, sizeof(bitboards));
 

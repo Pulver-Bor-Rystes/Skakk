@@ -7,8 +7,8 @@
 */
 
 namespace format {
-    string eval();
-    string move(int move);
+    std::string eval();
+    std::string move(int move);
 }
 
 namespace print {

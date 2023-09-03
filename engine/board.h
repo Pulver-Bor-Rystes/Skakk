@@ -49,7 +49,7 @@ namespace board
     }
 
     // Used to set position from a fen string
-    void parse_fen(string);
+    void parse_fen(std::string);
 
     // Used to update the occupancy bitboards
     static inline void update_occupancies()
@@ -721,6 +721,8 @@ namespace board
         return (side == white ? score : -score);
     }
 
+    extern int current_eval;
+
     static inline int quiescence(int alpha, int beta)
     {
         // Check if command should terminate based on time spend calculating
@@ -775,14 +777,13 @@ namespace board
 
             if (score > alpha)
             {
+                current_eval = score;
                 alpha = score;
             }
         }
 
         return alpha;
     }
-
-    extern int current_eval;
 
     static inline int negamax(int alpha, int beta, int depth)
     {
