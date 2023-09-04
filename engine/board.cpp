@@ -118,14 +118,12 @@ void board::search_position(int depth)
     int alpha = -50000;
     int beta = 50000;
     int candidate_pv_table_copy[246][246];
-    int candidate_pv_length_copy[246];
     
     for (int current_depth = 1; current_depth <= depth; current_depth++)
     {
         if(stop_calculating || found_checkmate) break;
 
         memcpy(&candidate_pv_table_copy, &pv_table, sizeof(pv_table));
-        memcpy(&candidate_pv_length_copy, &pv_length, sizeof(pv_length));
 
         current_eval = 0;
         nodes = 0;
@@ -157,6 +155,10 @@ void board::search_position(int depth)
             cout << format::move(pv_table[0][i]) << " ";
         }
         if(pv_length[0]) cout << endl;
+    }
+
+    if(!(stop_calculating)) {
+        memcpy(&candidate_pv_table_copy, &pv_table, sizeof(pv_table));
     }
 
     cout << "\nbestmove " << format::move(candidate_pv_table_copy[0][0]) << "\n\n";
