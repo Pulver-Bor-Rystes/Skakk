@@ -186,19 +186,19 @@ void uci::parse_go(std::string input)
             return;
         }
 
-        if (wtime_i != std::string::npos && board::side == white)
+        if (wtime_i != std::string::npos && state::side == white)
         {
             time = stoi(input.substr(wtime_i + 6));
         }
-        if (btime_i != std::string::npos && board::side == black)
+        if (btime_i != std::string::npos && state::side == black)
         {
             time = stoi(input.substr(btime_i + 6));
         }
-        if (winc_i != std::string::npos && board::side == white)
+        if (winc_i != std::string::npos && state::side == white)
         {
             inc = stoi(input.substr(winc_i + 5));
         }
-        if (binc_i != std::string::npos && board::side == black)
+        if (binc_i != std::string::npos && state::side == black)
         {
             inc = stoi(input.substr(binc_i + 5));
         }

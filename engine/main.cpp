@@ -21,7 +21,7 @@ int main()
         moves move_list[1];
         board::generate_moves(move_list);
         print::all_moves(move_list);
-        print::bitboard(board::bitboards[5]);
+        print::bitboard(state::bitboards[5]);
         print::game();
         print::attacked_squares(white);
 

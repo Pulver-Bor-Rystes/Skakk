@@ -3,8 +3,8 @@
 #include "limits"
 #include <bits/stdc++.h>
 
-std::string format::eval() {
-    double divided_score = static_cast<double>(board::current_eval) / 100.0;
+std::string format::eval(int eval) {
+    double divided_score = static_cast<double>(eval) / 100.0;
     std::string formatted_score = std::to_string(divided_score);
     size_t dotPosition = formatted_score.find('.');
     
@@ -104,7 +104,7 @@ void print::game() {
 
             int piece = -1;
             for(int i = 0; i < 12; i++) {
-                if(is_occupied(board::bitboards[i], square)) {
+                if(is_occupied(state::bitboards[i], square)) {
                     piece = i;
                     break;
                 }
@@ -118,12 +118,12 @@ void print::game() {
     }
 
     cout << "\n     a b c d e f g h\n\n";
-    cout << "     Side:        " << (board::side == white ? "white" : "black") << endl;
-    cout << "     en_passant:  " << ((board::en_passant != no_sq) ? index_to_square[board::en_passant] : "no") << endl;
-    cout << "     Castling:    " << ((board::castle & wk) ? 'K' : '-') <<
-                                    ((board::castle & wq) ? 'Q' : '-') <<
-                                    ((board::castle & bk) ? 'k' : '-') <<
-                                    ((board::castle & bq) ? 'q' : '-') <<
+    cout << "     Side:        " << (state::side == white ? "white" : "black") << endl;
+    cout << "     en_passant:  " << ((state::en_passant != no_sq) ? index_to_square[state::en_passant] : "no") << endl;
+    cout << "     Castling:    " << ((state::castle & wk) ? 'K' : '-') <<
+                                    ((state::castle & wq) ? 'Q' : '-') <<
+                                    ((state::castle & bk) ? 'k' : '-') <<
+                                    ((state::castle & bq) ? 'q' : '-') <<
                                     endl;
 }
 
@@ -143,5 +143,6 @@ double Timer::get_time_passed_millis() {
 Timer timer;
 
 bool stop_calculating = false;
+bool found_checkmate = false;
 bool use_time = false;
 double stop_time = std::numeric_limits<double>::infinity();

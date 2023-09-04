@@ -52,4 +52,3 @@ void perft::test(int depth)
     cout << "\n    Nodes: " << nodes;
     cout << "\n     Time: " << timer.get_time_passed_millis() << " milliseconds" << endl;
 }
-

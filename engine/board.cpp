@@ -1,26 +1,13 @@
 #include "board.h"
 #include "utils.h"
 
-U64 board::bitboards[12];
-
-U64 board::occupancies[3];
-
-// Side to move
-int board::side = -1;
-
-// En_passant square
-int board::en_passant = no_sq;
-
-// Castling rights
-int board::castle = 0;
-
 void board::parse_fen(std::string fen)
 {
-    memset(bitboards, 0ULL, sizeof(bitboards));
+    memset(state::bitboards, 0ULL, size_of_bitboards);
 
-    side = 0;
-    en_passant = no_sq;
-    castle = 0;
+    state::side = 0;
+    state::en_passant = no_sq;
+    state::castle = 0;
 
     int i = 0;
     int square;
@@ -33,7 +20,7 @@ void board::parse_fen(std::string fen)
 
             if ((fen[i] >= 'A' && fen[i] <= 'Z') || (fen[i] >= 'a' && fen[i] <= 'z'))
             {
-                set_bit(bitboards[char_pieces[fen[i]]], square);
+                set_bit(state::bitboards[char_pieces[fen[i]]], square);
             }
 
             else if (fen[i] >= '0' && fen[i] <= '9')
@@ -48,7 +35,7 @@ void board::parse_fen(std::string fen)
                 for (int bb_piece = P; bb_piece <= k; bb_piece++)
                 {
                     // if there is a piece on current square
-                    if (is_occupied(bitboards[bb_piece], square))
+                    if (is_occupied(state::bitboards[bb_piece], square))
                         // get piece code
                         piece = bb_piece;
                     break;
@@ -74,7 +61,7 @@ void board::parse_fen(std::string fen)
 
     // side to mode
     i++;
-    side = (fen[i] == 'w' ? white : black);
+    state::side = (fen[i] == 'w' ? white : black);
 
     // castling rights
     i += 2;
@@ -83,16 +70,16 @@ void board::parse_fen(std::string fen)
         switch (fen[i])
         {
         case 'K':
-            castle |= wk;
+            state::castle |= wk;
             break;
         case 'Q':
-            castle |= wq;
+            state::castle |= wq;
             break;
         case 'k':
-            castle |= bk;
+            state::castle |= bk;
             break;
         case 'q':
-            castle |= bq;
+            state::castle |= bq;
             break;
         }
         i++;
@@ -106,23 +93,21 @@ void board::parse_fen(std::string fen)
         i++;
         int rank = 8 - (fen[i] - '0');
 
-        en_passant = rank * 8 + file;
+        state::en_passant = rank * 8 + file;
     }
     else
     {
-        en_passant = no_sq;
+        state::en_passant = no_sq;
     }
 
     update_occupancies();
 }
 
-int board::ply = 0;
-long board::nodes = 0;
-int board::current_eval = 0;
 
 void board::search_position(int depth)
 {
     stop_calculating = false;
+    found_checkmate = false;
 
     // Resets helper arrays
     memset(killer_moves, 0, sizeof(killer_moves));
@@ -137,13 +122,13 @@ void board::search_position(int depth)
     
     for (int current_depth = 1; current_depth <= depth; current_depth++)
     {
-        if(stop_calculating) break;
+        if(stop_calculating || found_checkmate) break;
 
         memcpy(&candidate_pv_table_copy, &pv_table, sizeof(pv_table));
         memcpy(&candidate_pv_length_copy, &pv_length, sizeof(pv_length));
 
-        board::current_eval = 0;
-        board::nodes = 0;
+        current_eval = 0;
+        nodes = 0;
 
         int score = board::negamax(alpha, beta, current_depth);
 
@@ -160,11 +145,11 @@ void board::search_position(int depth)
 
         cout << endl;
         if(!stop_calculating) {
-            cout << "Found best move at depth " << current_depth << " looking through " << board::nodes << " nodes" << endl;
-            cout << "Evaluation: " << format::eval() << endl;
+            cout << "Found best move at depth " << current_depth << " looking through " << nodes << " nodes" << endl;
+            cout << "Evaluation: " << format::eval(current_eval) << endl;
         }
         else {
-            cout << "Interrupted by time at depth " << current_depth << " looking through " << board::nodes << " nodes" << endl;
+            cout << "Interrupted by time at depth " << current_depth << " looking through " << nodes << " nodes" << endl;
         }
         cout << "Total time passed: " << timer.get_time_passed_millis() << " milliseconds." << endl;
         for (int i = 0; i < pv_length[0]; i++)

@@ -305,3 +305,27 @@ static int pv_table[246][246];
 // Constants for null-move pruning
 static const int bound_wiggle_room = 50;
 static const int reduced_depth_factor = 2;
+
+static int ply = 0;
+static long nodes = 0;
+static int current_eval = 0;
+
+namespace state {
+    // Piece bitboards
+    extern U64 bitboards[12];
+
+    // Occupancy bitboards
+    extern U64 occupancies[3];
+
+    // Side to move
+    extern int side;
+
+    // En_passant square
+    extern int en_passant;
+
+    // Castling rights
+    extern int castle;
+}
+
+static const int size_of_bitboards = sizeof(state::bitboards);
+static const int size_of_occupancies = sizeof(state::occupancies);
