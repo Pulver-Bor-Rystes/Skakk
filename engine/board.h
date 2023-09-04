@@ -39,6 +39,11 @@ namespace board
     // Used to update the occupancy bitboards
     static inline void update_occupancies()
     {
+        state::occupancies[both] = (state::occupancies[white] | state::occupancies[black]);
+    }
+
+    static void populate_occupancies()
+    {
         memset(state::occupancies, 0ULL, size_of_occupancies);
 
         for (int piece_type = P; piece_type <= K; piece_type++)
@@ -51,8 +56,7 @@ namespace board
             state::occupancies[black] |= state::bitboards[piece_type];
         }
 
-        state::occupancies[both] |= state::occupancies[white];
-        state::occupancies[both] |= state::occupancies[black];
+        update_occupancies();
     }
 
     // Used to find out if a given square is attacked
@@ -580,7 +584,9 @@ namespace board
 
         // Move piece
         pop_bit(state::bitboards[piece], source);
+        pop_bit(state::occupancies[state::side], source);
         set_bit(state::bitboards[promotion_piece_type ? promotion_piece_type : piece], target);
+        set_bit(state::occupancies[state::side], target);
 
         // If the move is en passant, remove the en passant-ed piece
         if (is_en_passant(move))
@@ -588,10 +594,12 @@ namespace board
             if (state::side == white)
             {
                 pop_bit(state::bitboards[p], target + 8);
+                pop_bit(state::occupancies[black], target + 8);
             }
             else
             {
                 pop_bit(state::bitboards[P], target - 8);
+                pop_bit(state::occupancies[white], target - 8);
             }
         }
 
@@ -611,12 +619,13 @@ namespace board
                 end_piece = K;
             }
 
-            for (int bb_piece = start_piece; bb_piece < end_piece; bb_piece++)
+            for (int piece_type = start_piece; piece_type < end_piece; piece_type++)
             {
-                if (is_occupied(state::bitboards[bb_piece], target))
+                if (is_occupied(state::bitboards[piece_type], target))
                 {
 
-                    pop_bit(state::bitboards[bb_piece], target);
+                    pop_bit(state::bitboards[piece_type], target);
+                    pop_bit(state::occupancies[state::side ^ 1], target);
 
                     break;
                 }
@@ -637,25 +646,33 @@ namespace board
             case g1:
                 // If king side
                 pop_bit(state::bitboards[R], h1);
+                pop_bit(state::occupancies[white], h1);
                 set_bit(state::bitboards[R], f1);
+                set_bit(state::occupancies[white], f1);
                 break;
 
             case c1:
                 // If queen side
                 pop_bit(state::bitboards[R], a1);
+                pop_bit(state::occupancies[white], a1);
                 set_bit(state::bitboards[R], d1);
+                set_bit(state::occupancies[white], d1);
                 break;
 
             case g8:
                 // If king side
                 pop_bit(state::bitboards[r], h8);
+                pop_bit(state::occupancies[black], h8);
                 set_bit(state::bitboards[r], f8);
+                set_bit(state::occupancies[black], f8);
                 break;
 
             case c8:
                 // If queen side
                 pop_bit(state::bitboards[r], a8);
+                pop_bit(state::occupancies[black], a8);
                 set_bit(state::bitboards[r], d8);
+                set_bit(state::occupancies[black], d8);
                 break;
             }
         }

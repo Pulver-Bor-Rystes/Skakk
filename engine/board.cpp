@@ -100,7 +100,7 @@ void board::parse_fen(std::string fen)
         state::en_passant = no_sq;
     }
 
-    update_occupancies();
+    populate_occupancies();
 }
 
 
@@ -129,17 +129,6 @@ void board::search_position(int depth)
         nodes = 0;
 
         int score = board::negamax(alpha, beta, current_depth);
-
-        
-        if(score <= alpha || score >= beta) {
-            alpha = -50000;
-            beta = 50000;
-            --current_depth;
-            continue;
-        }
-
-        alpha = score - bound_wiggle_room;
-        alpha = score + bound_wiggle_room;
 
         cout << endl;
         if(!stop_calculating) {

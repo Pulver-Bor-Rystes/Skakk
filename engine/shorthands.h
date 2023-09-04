@@ -302,8 +302,7 @@ static int history_moves[12][246];
 static int pv_length[246];
 static int pv_table[246][246];
 
-// Constants for null-move pruning
-static const int bound_wiggle_room = 50;
+// Constant for null-move pruning
 static const int reduced_depth_factor = 2;
 
 static int ply = 0;

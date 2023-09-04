@@ -50,7 +50,7 @@ namespace movegen
     // The bitboard returned consists of 1's until the first 1 in the given bitboard is found
     static inline int get_ls1b(U64 bitboard)
     {
-        return (bitboard ? count_bits((bitboard & -bitboard) - 1) : -1);
+        return (count_bits((bitboard & -bitboard) - 1));
     }
 
     // The following leaper piece attack functions simply return
