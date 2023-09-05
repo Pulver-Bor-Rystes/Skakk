@@ -183,9 +183,29 @@ namespace board
         return 0;
     }
 
+    static int piece_array[64];
+
+    static inline void populate_piece_array() {
+        memset(&piece_array, 0, sizeof(piece_array));
+        for (int piece_type = P; piece_type <= k; piece_type++)
+        {
+            U64 bitboard = state::bitboards[piece_type];
+
+            while (bitboard) {
+                int square = movegen::get_ls1b(bitboard);
+                pop_bit(bitboard, square);
+                piece_array[square] = piece_type;
+            }
+        }
+    }
+
     // Used to generate all possible moves
     static inline void generate_moves(moves *move_list)
     {
+        
+        populate_piece_array();
+
+
         // Reset move count
         move_list->size = 0;
 
@@ -211,20 +231,20 @@ namespace board
                     // Pawn promotion
                     if (source_square >= a7 && source_square <= h7)
                     {
-                        add_move(move_list, encode_move(source_square, target_square, P, Q, 0, 0, 0, 0));
-                        add_move(move_list, encode_move(source_square, target_square, P, R, 0, 0, 0, 0));
-                        add_move(move_list, encode_move(source_square, target_square, P, B, 0, 0, 0, 0));
-                        add_move(move_list, encode_move(source_square, target_square, P, N, 0, 0, 0, 0));
+                        add_move(move_list, encode_move(source_square, target_square, P, Q, no_piece, 0, 0, 0));
+                        add_move(move_list, encode_move(source_square, target_square, P, R, no_piece, 0, 0, 0));
+                        add_move(move_list, encode_move(source_square, target_square, P, B, no_piece, 0, 0, 0));
+                        add_move(move_list, encode_move(source_square, target_square, P, N, no_piece, 0, 0, 0));
                     }
 
                     else
                     {
                         // One square ahead pawn move
-                        add_move(move_list, encode_move(source_square, target_square, P, 0, 0, 0, 0, 0));
+                        add_move(move_list, encode_move(source_square, target_square, P, 0, no_piece, 0, 0, 0));
 
                         // Two squares ahead pawn move
                         if ((source_square >= a2 && source_square <= h2) && !get_bit(state::occupancies[both], target_square - 8))
-                            add_move(move_list, encode_move(source_square, target_square - 8, P, 0, 0, 1, 0, 0));
+                            add_move(move_list, encode_move(source_square, target_square - 8, P, 0, no_piece, 1, 0, 0));
                     }
                 }
 
@@ -238,14 +258,14 @@ namespace board
                     // Pawn promotion
                     if (source_square >= a7 && source_square <= h7)
                     {
-                        add_move(move_list, encode_move(source_square, target_square, P, Q, 1, 0, 0, 0));
-                        add_move(move_list, encode_move(source_square, target_square, P, R, 1, 0, 0, 0));
-                        add_move(move_list, encode_move(source_square, target_square, P, B, 1, 0, 0, 0));
-                        add_move(move_list, encode_move(source_square, target_square, P, N, 1, 0, 0, 0));
+                        add_move(move_list, encode_move(source_square, target_square, P, Q, piece_array[target_square], 0, 0, 0));
+                        add_move(move_list, encode_move(source_square, target_square, P, R, piece_array[target_square], 0, 0, 0));
+                        add_move(move_list, encode_move(source_square, target_square, P, B, piece_array[target_square], 0, 0, 0));
+                        add_move(move_list, encode_move(source_square, target_square, P, N, piece_array[target_square], 0, 0, 0));
                     }
 
                     else
-                        add_move(move_list, encode_move(source_square, target_square, P, 0, 1, 0, 0, 0));
+                        add_move(move_list, encode_move(source_square, target_square, P, 0, piece_array[target_square], 0, 0, 0));
 
                     // Pop ls1b of the pawn attacks
                     pop_bit(attacks, target_square);
@@ -262,7 +282,7 @@ namespace board
                     {
                         // Init en_passant capture target square
                         int target_en_passant = movegen::get_ls1b(en_passant_attacks);
-                        add_move(move_list, encode_move(source_square, target_en_passant, P, 0, 1, 0, 1, 0));
+                        add_move(move_list, encode_move(source_square, target_en_passant, P, 0, p, 0, 1, 0));
                     }
                 }
 
@@ -281,7 +301,7 @@ namespace board
                 {
                     // make sure king and the f1 squares are not under attacks
                     if (!is_square_attacked(e1, black) && !is_square_attacked(f1, black))
-                        add_move(move_list, encode_move(e1, g1, K, 0, 0, 0, 0, 1));
+                        add_move(move_list, encode_move(e1, g1, K, 0, no_piece, 0, 0, 1));
                 }
             }
 
@@ -293,7 +313,7 @@ namespace board
                 {
                     // make sure king and the d1 squares are not under attacks
                     if (!is_square_attacked(e1, black) && !is_square_attacked(d1, black))
-                        add_move(move_list, encode_move(e1, c1, K, 0, 0, 0, 0, 1));
+                        add_move(move_list, encode_move(e1, c1, K, 0, no_piece, 0, 0, 1));
                 }
             }
         }
@@ -318,20 +338,20 @@ namespace board
                     // pawn promotion
                     if (source_square >= a2 && source_square <= h2)
                     {
-                        add_move(move_list, encode_move(source_square, target_square, p, q, 0, 0, 0, 0));
-                        add_move(move_list, encode_move(source_square, target_square, p, r, 0, 0, 0, 0));
-                        add_move(move_list, encode_move(source_square, target_square, p, b, 0, 0, 0, 0));
-                        add_move(move_list, encode_move(source_square, target_square, p, n, 0, 0, 0, 0));
+                        add_move(move_list, encode_move(source_square, target_square, p, q, no_piece, 0, 0, 0));
+                        add_move(move_list, encode_move(source_square, target_square, p, r, no_piece, 0, 0, 0));
+                        add_move(move_list, encode_move(source_square, target_square, p, b, no_piece, 0, 0, 0));
+                        add_move(move_list, encode_move(source_square, target_square, p, n, no_piece, 0, 0, 0));
                     }
 
                     else
                     {
                         // one square ahead pawn move
-                        add_move(move_list, encode_move(source_square, target_square, p, 0, 0, 0, 0, 0));
+                        add_move(move_list, encode_move(source_square, target_square, p, 0, no_piece, 0, 0, 0));
 
                         // two squares ahead pawn move
                         if ((source_square >= a7 && source_square <= h7) && !get_bit(state::occupancies[both], target_square + 8))
-                            add_move(move_list, encode_move(source_square, target_square + 8, p, 0, 0, 1, 0, 0));
+                            add_move(move_list, encode_move(source_square, target_square + 8, p, 0, no_piece, 1, 0, 0));
                     }
                 }
 
@@ -347,15 +367,15 @@ namespace board
                     // pawn promotion
                     if (source_square >= a2 && source_square <= h2)
                     {
-                        add_move(move_list, encode_move(source_square, target_square, p, q, 1, 0, 0, 0));
-                        add_move(move_list, encode_move(source_square, target_square, p, r, 1, 0, 0, 0));
-                        add_move(move_list, encode_move(source_square, target_square, p, b, 1, 0, 0, 0));
-                        add_move(move_list, encode_move(source_square, target_square, p, n, 1, 0, 0, 0));
+                        add_move(move_list, encode_move(source_square, target_square, p, q, piece_array[target_square], 0, 0, 0));
+                        add_move(move_list, encode_move(source_square, target_square, p, r, piece_array[target_square], 0, 0, 0));
+                        add_move(move_list, encode_move(source_square, target_square, p, b, piece_array[target_square], 0, 0, 0));
+                        add_move(move_list, encode_move(source_square, target_square, p, n, piece_array[target_square], 0, 0, 0));
                     }
 
                     else
                         // one square ahead pawn move
-                        add_move(move_list, encode_move(source_square, target_square, p, 0, 1, 0, 0, 0));
+                        add_move(move_list, encode_move(source_square, target_square, p, 0, piece_array[target_square], 0, 0, 0));
 
                     // pop ls1b of the pawn attacks
                     pop_bit(attacks, target_square);
@@ -372,7 +392,7 @@ namespace board
                     {
                         // init en_passant capture target square
                         int target_en_passant = movegen::get_ls1b(en_passant_attacks);
-                        add_move(move_list, encode_move(source_square, target_en_passant, p, 0, 1, 0, 1, 0));
+                        add_move(move_list, encode_move(source_square, target_en_passant, p, 0, P, 0, 1, 0));
                     }
                 }
 
@@ -390,7 +410,7 @@ namespace board
                 {
                     // make sure king and the f8 squares are not under attacks
                     if (!is_square_attacked(e8, white) && !is_square_attacked(f8, white))
-                        add_move(move_list, encode_move(e8, g8, k, 0, 0, 0, 0, 1));
+                        add_move(move_list, encode_move(e8, g8, k, 0, no_piece, 0, 0, 1));
                 }
             }
 
@@ -402,7 +422,7 @@ namespace board
                 {
                     // make sure king and the d8 squares are not under attacks
                     if (!is_square_attacked(e8, white) && !is_square_attacked(d8, white))
-                        add_move(move_list, encode_move(e8, c8, k, 0, 0, 0, 0, 1));
+                        add_move(move_list, encode_move(e8, c8, k, 0, no_piece, 0, 0, 1));
                 }
             }
         }
@@ -427,11 +447,11 @@ namespace board
 
                 // quiet move
                 if (!get_bit(((state::side == white) ? state::occupancies[black] : state::occupancies[white]), target_square))
-                    add_move(move_list, encode_move(source_square, target_square, piece, 0, 0, 0, 0, 0));
+                    add_move(move_list, encode_move(source_square, target_square, piece, 0, no_piece, 0, 0, 0));
 
                 else
                     // capture move
-                    add_move(move_list, encode_move(source_square, target_square, piece, 0, 1, 0, 0, 0));
+                    add_move(move_list, encode_move(source_square, target_square, piece, 0, piece_array[target_square], 0, 0, 0));
 
                 // pop ls1b in current attacks set
                 pop_bit(attacks, target_square);
@@ -462,11 +482,11 @@ namespace board
 
                 // quiet move
                 if (!get_bit(((state::side == white) ? state::occupancies[black] : state::occupancies[white]), target_square))
-                    add_move(move_list, encode_move(source_square, target_square, piece, 0, 0, 0, 0, 0));
+                    add_move(move_list, encode_move(source_square, target_square, piece, 0, no_piece, 0, 0, 0));
 
                 else
                     // capture move
-                    add_move(move_list, encode_move(source_square, target_square, piece, 0, 1, 0, 0, 0));
+                    add_move(move_list, encode_move(source_square, target_square, piece, 0, piece_array[target_square], 0, 0, 0));
 
                 // pop ls1b in current attacks set
                 pop_bit(attacks, target_square);
@@ -496,11 +516,11 @@ namespace board
 
                 // quiet move
                 if (!get_bit(((state::side == white) ? state::occupancies[black] : state::occupancies[white]), target_square))
-                    add_move(move_list, encode_move(source_square, target_square, piece, 0, 0, 0, 0, 0));
+                    add_move(move_list, encode_move(source_square, target_square, piece, 0, no_piece, 0, 0, 0));
 
                 else
                     // capture move
-                    add_move(move_list, encode_move(source_square, target_square, piece, 0, 1, 0, 0, 0));
+                    add_move(move_list, encode_move(source_square, target_square, piece, 0, piece_array[target_square], 0, 0, 0));
 
                 // pop ls1b in current attacks set
                 pop_bit(attacks, target_square);
@@ -530,11 +550,11 @@ namespace board
 
                 // quiet move
                 if (!get_bit(((state::side == white) ? state::occupancies[black] : state::occupancies[white]), target_square))
-                    add_move(move_list, encode_move(source_square, target_square, piece, 0, 0, 0, 0, 0));
+                    add_move(move_list, encode_move(source_square, target_square, piece, 0, no_piece, 0, 0, 0));
 
                 else
                     // capture move
-                    add_move(move_list, encode_move(source_square, target_square, piece, 0, 1, 0, 0, 0));
+                    add_move(move_list, encode_move(source_square, target_square, piece, 0, piece_array[target_square], 0, 0, 0));
 
                 // pop ls1b in current attacks set
                 pop_bit(attacks, target_square);
@@ -564,11 +584,11 @@ namespace board
 
                 // quiet move
                 if (!get_bit(((state::side == white) ? state::occupancies[black] : state::occupancies[white]), target_square))
-                    add_move(move_list, encode_move(source_square, target_square, piece, 0, 0, 0, 0, 0));
+                    add_move(move_list, encode_move(source_square, target_square, piece, 0, no_piece, 0, 0, 0));
 
                 else
                     // capture move
-                    add_move(move_list, encode_move(source_square, target_square, piece, 0, 1, 0, 0, 0));
+                    add_move(move_list, encode_move(source_square, target_square, piece, 0, piece_array[target_square], 0, 0, 0));
 
                 // pop ls1b in current attacks set
                 pop_bit(attacks, target_square);
@@ -589,29 +609,9 @@ namespace board
         // Score capture move
         if (is_capture(move))
         {
-            int start_piece, end_piece;
-            if (state::side == white)
-            {
-                start_piece = p;
-                end_piece = k;
-            }
-            else
-            {
-                start_piece = P;
-                end_piece = K;
-            }
+            
 
-            for (int piece_type = start_piece; piece_type <= end_piece; piece_type++)
-            {
-                if (is_occupied(state::bitboards[piece_type], get_target(move)))
-                {
-                    target_piece = piece_type;
-                    // for some reason, break makes it slower
-                    // break;
-                }
-            }
-
-            return mvv_lva[get_piece(move)][target_piece] + 10000;
+            return mvv_lva[get_piece(move)][get_captured_piece_type(move)] + 10000;
         }
 
         // Score quiet move
@@ -719,29 +719,10 @@ namespace board
         // Important else, which saves running time
         else if (is_capture(move))
         {
-            int start_piece, end_piece;
-            if (state::side == white)
-            {
-                start_piece = p;
-                end_piece = k;
-            }
-            else
-            {
-                start_piece = P;
-                end_piece = K;
-            }
+            
+            pop_bit(state::bitboards[get_captured_piece_type(move)], target);
+            pop_bit(state::occupancies[state::side ^ 1], target);
 
-            for (int piece_type = start_piece; piece_type < end_piece; piece_type++)
-            {
-                if (is_occupied(state::bitboards[piece_type], target))
-                {
-
-                    pop_bit(state::bitboards[piece_type], target);
-                    pop_bit(state::occupancies[state::side ^ 1], target);
-
-                    break;
-                }
-            }
         }
 
         // Set en passant square if a double pawn push was made

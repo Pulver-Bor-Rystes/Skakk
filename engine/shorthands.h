@@ -12,6 +12,26 @@ using std::endl;
 // Defining custom type U64, consisting of 64 zeroes
 #define U64 unsigned long long
 
+namespace state {
+    // Piece bitboards
+    extern U64 bitboards[12];
+
+    // Occupancy bitboards
+    extern U64 occupancies[3];
+
+    // Side to move
+    extern int side;
+
+    // En_passant square
+    extern int en_passant;
+
+    // Castling rights
+    extern int castle;
+}
+
+static const int size_of_bitboards = sizeof(state::bitboards);
+static const int size_of_occupancies = sizeof(state::occupancies);
+
 // Bit manipulation macros, basically shorthands
 #define is_occupied(bitboard, square) (bitboard & (1ULL << square))
 #define get_bit(bitboard, square) ((bitboard & (1ULL << square)) ? 1 : 0)
@@ -42,15 +62,6 @@ struct moves
     int size;
 };
 
-// Macros to extract move information
-#define get_source(move) (move & 0x3f)
-#define get_target(move) ((move & 0xfc0) >> 6)
-#define get_piece(move) ((move & 0xf000) >> 12)
-#define get_promotion_piece_type(move) ((move & 0xf0000) >> 16)
-#define is_capture(move) (move & 0x100000)
-#define is_double_pawn_push(move) (move & 0x200000)
-#define is_en_passant(move) (move & 0x400000)
-#define is_castling(move) (move & 0x800000)
 
 /*
           binary move bits                               hexidecimal constants
@@ -65,6 +76,17 @@ struct moves
     1000 0000 0000 0000 0000 0000    castling flag       0x800000
 */
 
+// Macros to extract move information
+#define get_source(move) (move & 0x3f)
+#define get_target(move) ((move & 0xfc0) >> 6)
+#define get_piece(move) ((move & 0xf000) >> 12)
+#define get_promotion_piece_type(move) ((move & 0xf0000) >> 16)
+#define get_captured_piece_type(move) ((move & 0xf00000) >> 20)
+#define is_capture(move) (((move & 0xf00000) >> 20) != no_piece)
+#define is_double_pawn_push(move) (move & 0x1000000)
+#define is_en_passant(move) (move & 0x2000000)
+#define is_castling(move) (move & 0x4000000)
+
 // Macro to encode move
 #define encode_move(source, target, piece, promoted, capture, double_pawn_push, en_passant, castling) \
     (source) |                                                                                        \
@@ -72,9 +94,9 @@ struct moves
         (piece << 12) |                                                                               \
         (promoted << 16) |                                                                            \
         (capture << 20) |                                                                             \
-        (double_pawn_push << 21) |                                                                    \
-        (en_passant << 22) |                                                                          \
-        (castling << 23)
+        (double_pawn_push << 24) |                                                                    \
+        (en_passant << 25) |                                                                          \
+        (castling << 26)
 
 // Lookup-tables relating converting from and to number and square name
 static const std::string index_to_square[] = {
@@ -308,23 +330,3 @@ static const int reduced_depth_factor = 2;
 static int ply = 0;
 static long nodes = 0;
 static int current_eval = 0;
-
-namespace state {
-    // Piece bitboards
-    extern U64 bitboards[12];
-
-    // Occupancy bitboards
-    extern U64 occupancies[3];
-
-    // Side to move
-    extern int side;
-
-    // En_passant square
-    extern int en_passant;
-
-    // Castling rights
-    extern int castle;
-}
-
-static const int size_of_bitboards = sizeof(state::bitboards);
-static const int size_of_occupancies = sizeof(state::occupancies);
