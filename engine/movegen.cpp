@@ -1,5 +1,4 @@
 #include "movegen.h"
-#include "rng.h"
 
 namespace movegen
 {

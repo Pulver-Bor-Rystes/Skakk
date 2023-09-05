@@ -1,5 +1,4 @@
 #include "shorthands.h"
-#include "rng.h"
 #include "movegen.h"
 #include "perft.h"
 #include "uci.h"

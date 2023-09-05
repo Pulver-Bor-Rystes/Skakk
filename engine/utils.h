@@ -1,16 +1,20 @@
 #pragma once
 #include "shorthands.h"
 
-/*
-    The print namespace contains useful functions
-    for printing various chess elements
-*/
 
+/*
+    The format namespace contains useful functions
+    for formatting various data
+*/
 namespace format {
     std::string eval(int eval);
     std::string move(int move);
 }
 
+/*
+    The print namespace contains useful functions
+    for printing various chess elements
+*/
 namespace print {
     void move(int move);
     void all_moves(moves *move_list);
@@ -19,6 +23,24 @@ namespace print {
     void attacked_squares(int side);
 }
 
+/*
+    The rng namespace is used for tasks relating to randomness
+*/
+namespace rng
+{
+    // Current state, initialized to a large integer
+    extern unsigned int random_state;
+
+    // Generates a magic number for slider piece moves
+    U64 generate_magic_number_contender();
+    
+    // Generates a random 32-bit number
+    unsigned int generate_32_bit();
+
+    // Generates a random 64-bit number
+    unsigned int generate_64_bit();
+    
+}
 
 class Timer {
 public:

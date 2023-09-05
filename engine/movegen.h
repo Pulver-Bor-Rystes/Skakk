@@ -1,11 +1,10 @@
 #pragma once
-#include "shorthands.h"
+#include "utils.h"
 
 /*
     The movegen namespace contains useful functions and variables
     relating to the move generation proces
 */
-
 namespace movegen
 {
 
