@@ -28,7 +28,7 @@ namespace perft {
         
 
             // Preserve board state
-            copy_board(current_move, get_captured_piece_type(current_move));
+            copy_board(current_move, board::piece_array[get_target(current_move)]);
             
             // Makes move and skips if illegal
             if(!board::make_move(current_move)) continue;

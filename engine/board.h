@@ -890,7 +890,7 @@ namespace board
 
         // Null-move pruning
         // https://web.archive.org/web/20071031095933/http://www.brucemo.com/compchess/programming/nullmove.htm
-        /*
+        
         if (depth >= 3 && !in_check && ply)
         {
             copy_board(-1, no_piece);
@@ -907,7 +907,7 @@ namespace board
 
             if (score >= beta)
                 return beta;
-        }*/
+        }
 
         // Keep track of the amount of legal moves
         int legal_moves = 0;
