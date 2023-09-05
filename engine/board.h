@@ -4,10 +4,10 @@
 #include "movegen.h"
 
 // Macros for copying and reversing the current board state
-#define copy_board(move, captured_piece)                                                          \
-    int side_copy, en_passant_copy, castle_copy, move_copy, captured_piece_copy;                              \
+#define copy_board(move)                                                          \
+    int side_copy, en_passant_copy, castle_copy, move_copy;                             \
     side_copy = state::side, en_passant_copy = state::en_passant, castle_copy = state::castle; \
-    move_copy = move, captured_piece_copy = captured_piece; \
+    move_copy = move; \
 
 
     // Used to update the occupancy bitboards
@@ -18,7 +18,7 @@
 
 
     // Used to make a move on the board
-    static inline void undo_move(int move, int captured_piece)
+    static inline void undo_move(int move)
     {
         if(move == -1) return;
         
@@ -26,7 +26,7 @@
         int target = get_target(move);
         int piece = get_piece(move);
         int promotion_piece_type = get_promotion_piece_type(move);
-
+        int captured_piece = get_captured_piece_type(move);
 
         
         // Move piece
@@ -117,7 +117,7 @@
 
 #define revert_board()                                                        \
     state::side = side_copy, state::en_passant = en_passant_copy, state::castle = castle_copy; \
-    undo_move(move_copy, captured_piece_copy); \
+    undo_move(move_copy); \
 
 /*
     The board namespace contains the board state
@@ -821,7 +821,7 @@ namespace board
         int promotion_piece_type = get_promotion_piece_type(move);
 
 
-        copy_board(move, get_captured_piece_type(move));
+        copy_board(move);
 
         // Move piece
         pop_bit(state::bitboards[piece], source);
@@ -972,7 +972,7 @@ namespace board
             int current_move = move_list->array[i];
 
 
-            copy_board(current_move, get_captured_piece_type(current_move));
+            copy_board(current_move);
 
             ++ply;
 
@@ -1031,7 +1031,7 @@ namespace board
         
         if (depth >= 3 && !in_check && ply)
         {
-            copy_board(-1, no_piece);
+            copy_board(-1);
 
             // Imitates board as if it is opponent to move
             state::side ^= 1;
@@ -1059,7 +1059,7 @@ namespace board
         {
             int current_move = move_list->array[i];
             
-            copy_board(current_move, get_captured_piece_type(current_move));
+            copy_board(current_move);
 
             
             ++ply;

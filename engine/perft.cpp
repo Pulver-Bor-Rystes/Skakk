@@ -25,7 +25,7 @@ void perft::test(int depth)
         
 
         // Preserve board state
-        copy_board(current_move, get_captured_piece_type(current_move));
+        copy_board(current_move);
         
         // make move
         if (!board::make_move(current_move))
