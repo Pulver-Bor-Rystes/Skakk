@@ -681,18 +681,8 @@ namespace board
         int piece = get_piece(move);
         int promotion_piece_type = get_promotion_piece_type(move);
 
-        int captured_piece = no_piece;
-        if(is_capture(move)) {
-            for (int piece_type = P; piece_type <= k; piece_type++)
-            {
-                if(is_occupied(state::bitboards[piece_type], target)) {
-                    captured_piece = piece_type;
-                    break;
-                }
-            }
-        }
 
-        copy_board(move, captured_piece);
+        copy_board(move, get_captured_piece_type(move));
 
         // Move piece
         pop_bit(state::bitboards[piece], source);
@@ -842,18 +832,8 @@ namespace board
         {
             int current_move = move_list->array[i];
 
-            int captured_piece = no_piece;
-            if(is_capture(current_move)) {
-                for (int piece_type = P; piece_type <= k; piece_type++)
-                {
-                    if(is_occupied(state::bitboards[piece_type], get_target(current_move))) {
-                        captured_piece = piece_type;
-                        break;
-                    }
-                }
-            }
 
-            copy_board(current_move, captured_piece);
+            copy_board(current_move, get_captured_piece_type(current_move));
 
             ++ply;
 
@@ -940,17 +920,8 @@ namespace board
         for (int i = 0; i < move_list->size; i++)
         {
             int current_move = move_list->array[i];
-            int captured_piece = no_piece;
-            if(is_capture(current_move)) {
-                for (int piece_type = P; piece_type <= k; piece_type++)
-                {
-                    if(is_occupied(state::bitboards[piece_type], get_target(current_move))) {
-                        captured_piece = piece_type;
-                        break;
-                    }
-                }
-            }
-            copy_board(current_move, captured_piece);
+            
+            copy_board(current_move, get_captured_piece_type(current_move));
 
             
             ++ply;
