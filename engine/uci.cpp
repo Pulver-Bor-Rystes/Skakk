@@ -103,6 +103,7 @@ void uci::parse_position(std::string input)
         size_t rookpos_i = input.find("rookpos");
         size_t promotionpos_i = input.find("promotionpos");
         size_t checkmatepos_i = input.find("checkmatepos");
+        size_t emptypos_i = input.find("emptypos");
         size_t fen_i = input.find("fen");
         size_t moves_i = input.find("moves");
         // Get position
@@ -134,6 +135,11 @@ void uci::parse_position(std::string input)
         {
             board::parse_fen(checkmate_position);
         }
+        else if(emptypos_i != std::string::npos) 
+        {
+            board::parse_fen(empty_position);
+        }
+
         else if (fen_i != std::string::npos)
         {
             board::parse_fen(input.substr(fen_i + 4));

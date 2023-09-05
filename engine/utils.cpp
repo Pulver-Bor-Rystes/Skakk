@@ -143,6 +143,5 @@ double Timer::get_time_passed_millis() {
 Timer timer;
 
 bool stop_calculating = false;
-bool found_checkmate = false;
 bool use_time = false;
 double stop_time = std::numeric_limits<double>::infinity();

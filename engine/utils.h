@@ -33,7 +33,6 @@ private:
 extern Timer timer;
 
 extern bool stop_calculating;
-extern bool found_checkmate;
 extern bool use_time;
 extern double stop_time;
 

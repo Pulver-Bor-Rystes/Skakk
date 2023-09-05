@@ -141,7 +141,6 @@ static std::map<char, int> promoted_pieces = {
     {0, ' '}};
 
 // FEN dedug positions
-static std::string empty_board = "8/8/8/8/8/8/8/8 w - - ";
 static std::string start_position = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 static std::string pawns_position = "8/pppppppp/8/8/8/8/PPPPPPPP/8 w KQkq - 0 1 ";
 static std::string tricky_position = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1 ";
@@ -150,6 +149,7 @@ static std::string cmk_position = "r2q1rk1/ppp2ppp/2n1bn2/2b1p3/3pP3/3P1NPP/PPP1
 static std::string rook_position = "8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - ";
 static std::string promotion_position = "4k3/1P4P1/8/8/8/8/1pp3p1/4K3 w - - 0 1";
 static std::string checkmate_position = "rnbqkbnr/ppppp2p/8/8/8/8/PPPP1PPP/RNBQKBNR w KQkq - 0 1";
+static std::string empty_position = "8/k7/8/8/8/8/K7/8 w - - ";
 
 // Tables for scoring piece placements
 static const int P_score[64] = 
@@ -329,4 +329,3 @@ static const int reduced_depth_factor = 2;
 
 static int ply = 0;
 static long nodes = 0;
-static int current_eval = 0;

@@ -998,7 +998,6 @@ namespace board
 
             if (score > alpha)
             {
-                current_eval = score;
                 alpha = score;
             }
         }
@@ -1116,8 +1115,6 @@ namespace board
 
                 alpha = score;
 
-                current_eval = score;
-
                 pv_table[ply][ply] = current_move;
 
                 for (int next_ply = ply + 1; next_ply < pv_length[ply + 1]; next_ply++)
@@ -1135,7 +1132,6 @@ namespace board
             // King is in check (checkmate)
             if (in_check)
             {
-                found_checkmate = true;
                 // "+ ply" prioritizes shorter checkmates
                 return -49000 + ply;
             }
