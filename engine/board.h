@@ -185,25 +185,11 @@ namespace board
 
     static int piece_array[64];
 
-    static inline void populate_piece_array() {
-        memset(&piece_array, 0, sizeof(piece_array));
-        for (int piece_type = P; piece_type <= k; piece_type++)
-        {
-            U64 bitboard = state::bitboards[piece_type];
-
-            while (bitboard) {
-                int square = movegen::get_ls1b(bitboard);
-                pop_bit(bitboard, square);
-                piece_array[square] = piece_type;
-            }
-        }
-    }
 
     // Used to generate all possible moves
     static inline void generate_moves(moves *move_list)
     {
         
-        populate_piece_array();
 
 
         // Reset move count
@@ -254,18 +240,40 @@ namespace board
                 while (attacks)
                 {
                     target_square = movegen::get_ls1b(attacks);
+                    int target_piece = no_piece;
+                    int start_piece, end_piece;
+                    if (state::side == white)
+                    {
+                        start_piece = p;
+                        end_piece = k;
+                    }
+                    else
+                    {
+                        start_piece = P;
+                        end_piece = K;
+                    }
 
+                    for (int piece_type = start_piece; piece_type <= end_piece; piece_type++)
+                    {
+                        if (is_occupied(state::bitboards[piece_type], target_square))
+                        {
+                            target_piece = piece_type;
+                            // for some reason, break makes it slower
+                            // break;
+                        }
+                    }
                     // Pawn promotion
                     if (source_square >= a7 && source_square <= h7)
                     {
-                        add_move(move_list, encode_move(source_square, target_square, P, Q, piece_array[target_square], 0, 0, 0));
-                        add_move(move_list, encode_move(source_square, target_square, P, R, piece_array[target_square], 0, 0, 0));
-                        add_move(move_list, encode_move(source_square, target_square, P, B, piece_array[target_square], 0, 0, 0));
-                        add_move(move_list, encode_move(source_square, target_square, P, N, piece_array[target_square], 0, 0, 0));
+                        
+                        add_move(move_list, encode_move(source_square, target_square, P, Q, target_piece, 0, 0, 0));
+                        add_move(move_list, encode_move(source_square, target_square, P, R, target_piece, 0, 0, 0));
+                        add_move(move_list, encode_move(source_square, target_square, P, B, target_piece, 0, 0, 0));
+                        add_move(move_list, encode_move(source_square, target_square, P, N, target_piece, 0, 0, 0));
                     }
 
                     else
-                        add_move(move_list, encode_move(source_square, target_square, P, 0, piece_array[target_square], 0, 0, 0));
+                        add_move(move_list, encode_move(source_square, target_square, P, 0, target_piece, 0, 0, 0));
 
                     // Pop ls1b of the pawn attacks
                     pop_bit(attacks, target_square);
@@ -363,19 +371,40 @@ namespace board
                 {
                     // init target square
                     target_square = movegen::get_ls1b(attacks);
+                    int target_piece = no_piece;
+                    int start_piece, end_piece;
+                    if (state::side == white)
+                    {
+                        start_piece = p;
+                        end_piece = k;
+                    }
+                    else
+                    {
+                        start_piece = P;
+                        end_piece = K;
+                    }
 
+                    for (int piece_type = start_piece; piece_type <= end_piece; piece_type++)
+                    {
+                        if (is_occupied(state::bitboards[piece_type], target_square))
+                        {
+                            target_piece = piece_type;
+                            // for some reason, break makes it slower
+                            // break;
+                        }
+                    }
                     // pawn promotion
                     if (source_square >= a2 && source_square <= h2)
                     {
-                        add_move(move_list, encode_move(source_square, target_square, p, q, piece_array[target_square], 0, 0, 0));
-                        add_move(move_list, encode_move(source_square, target_square, p, r, piece_array[target_square], 0, 0, 0));
-                        add_move(move_list, encode_move(source_square, target_square, p, b, piece_array[target_square], 0, 0, 0));
-                        add_move(move_list, encode_move(source_square, target_square, p, n, piece_array[target_square], 0, 0, 0));
+                        add_move(move_list, encode_move(source_square, target_square, p, q, target_piece, 0, 0, 0));
+                        add_move(move_list, encode_move(source_square, target_square, p, r, target_piece, 0, 0, 0));
+                        add_move(move_list, encode_move(source_square, target_square, p, b, target_piece, 0, 0, 0));
+                        add_move(move_list, encode_move(source_square, target_square, p, n, target_piece, 0, 0, 0));
                     }
 
                     else
                         // one square ahead pawn move
-                        add_move(move_list, encode_move(source_square, target_square, p, 0, piece_array[target_square], 0, 0, 0));
+                        add_move(move_list, encode_move(source_square, target_square, p, 0, target_piece, 0, 0, 0));
 
                     // pop ls1b of the pawn attacks
                     pop_bit(attacks, target_square);
@@ -449,10 +478,32 @@ namespace board
                 if (!get_bit(((state::side == white) ? state::occupancies[black] : state::occupancies[white]), target_square))
                     add_move(move_list, encode_move(source_square, target_square, piece, 0, no_piece, 0, 0, 0));
 
-                else
-                    // capture move
-                    add_move(move_list, encode_move(source_square, target_square, piece, 0, piece_array[target_square], 0, 0, 0));
+                else {
+                    int target_piece = no_piece;
+                    int start_piece, end_piece;
+                    if (state::side == white)
+                    {
+                        start_piece = p;
+                        end_piece = k;
+                    }
+                    else
+                    {
+                        start_piece = P;
+                        end_piece = K;
+                    }
 
+                    for (int piece_type = start_piece; piece_type <= end_piece; piece_type++)
+                    {
+                        if (is_occupied(state::bitboards[piece_type], target_square))
+                        {
+                            target_piece = piece_type;
+                            // for some reason, break makes it slower
+                            // break;
+                        }
+                    }
+                    // capture move
+                    add_move(move_list, encode_move(source_square, target_square, piece, 0, target_piece, 0, 0, 0));
+                }
                 // pop ls1b in current attacks set
                 pop_bit(attacks, target_square);
             }
@@ -484,10 +535,32 @@ namespace board
                 if (!get_bit(((state::side == white) ? state::occupancies[black] : state::occupancies[white]), target_square))
                     add_move(move_list, encode_move(source_square, target_square, piece, 0, no_piece, 0, 0, 0));
 
-                else
-                    // capture move
-                    add_move(move_list, encode_move(source_square, target_square, piece, 0, piece_array[target_square], 0, 0, 0));
+                else {
+                    int target_piece = no_piece;
+                    int start_piece, end_piece;
+                    if (state::side == white)
+                    {
+                        start_piece = p;
+                        end_piece = k;
+                    }
+                    else
+                    {
+                        start_piece = P;
+                        end_piece = K;
+                    }
 
+                    for (int piece_type = start_piece; piece_type <= end_piece; piece_type++)
+                    {
+                        if (is_occupied(state::bitboards[piece_type], target_square))
+                        {
+                            target_piece = piece_type;
+                            // for some reason, break makes it slower
+                            // break;
+                        }
+                    }
+                    // capture move
+                    add_move(move_list, encode_move(source_square, target_square, piece, 0, target_piece, 0, 0, 0));
+                }
                 // pop ls1b in current attacks set
                 pop_bit(attacks, target_square);
             }
@@ -518,10 +591,32 @@ namespace board
                 if (!get_bit(((state::side == white) ? state::occupancies[black] : state::occupancies[white]), target_square))
                     add_move(move_list, encode_move(source_square, target_square, piece, 0, no_piece, 0, 0, 0));
 
-                else
-                    // capture move
-                    add_move(move_list, encode_move(source_square, target_square, piece, 0, piece_array[target_square], 0, 0, 0));
+                else {
+                    int target_piece = no_piece;
+                    int start_piece, end_piece;
+                    if (state::side == white)
+                    {
+                        start_piece = p;
+                        end_piece = k;
+                    }
+                    else
+                    {
+                        start_piece = P;
+                        end_piece = K;
+                    }
 
+                    for (int piece_type = start_piece; piece_type <= end_piece; piece_type++)
+                    {
+                        if (is_occupied(state::bitboards[piece_type], target_square))
+                        {
+                            target_piece = piece_type;
+                            // for some reason, break makes it slower
+                            // break;
+                        }
+                    }
+                    // capture move
+                    add_move(move_list, encode_move(source_square, target_square, piece, 0, target_piece, 0, 0, 0));
+                }
                 // pop ls1b in current attacks set
                 pop_bit(attacks, target_square);
             }
@@ -552,10 +647,32 @@ namespace board
                 if (!get_bit(((state::side == white) ? state::occupancies[black] : state::occupancies[white]), target_square))
                     add_move(move_list, encode_move(source_square, target_square, piece, 0, no_piece, 0, 0, 0));
 
-                else
-                    // capture move
-                    add_move(move_list, encode_move(source_square, target_square, piece, 0, piece_array[target_square], 0, 0, 0));
+                else {
+                    int target_piece = no_piece;
+                    int start_piece, end_piece;
+                    if (state::side == white)
+                    {
+                        start_piece = p;
+                        end_piece = k;
+                    }
+                    else
+                    {
+                        start_piece = P;
+                        end_piece = K;
+                    }
 
+                    for (int piece_type = start_piece; piece_type <= end_piece; piece_type++)
+                    {
+                        if (is_occupied(state::bitboards[piece_type], target_square))
+                        {
+                            target_piece = piece_type;
+                            // for some reason, break makes it slower
+                            // break;
+                        }
+                    }
+                    // capture move
+                    add_move(move_list, encode_move(source_square, target_square, piece, 0, target_piece, 0, 0, 0));
+                }
                 // pop ls1b in current attacks set
                 pop_bit(attacks, target_square);
             }
@@ -586,10 +703,32 @@ namespace board
                 if (!get_bit(((state::side == white) ? state::occupancies[black] : state::occupancies[white]), target_square))
                     add_move(move_list, encode_move(source_square, target_square, piece, 0, no_piece, 0, 0, 0));
 
-                else
-                    // capture move
-                    add_move(move_list, encode_move(source_square, target_square, piece, 0, piece_array[target_square], 0, 0, 0));
+                else {
+                    int target_piece = no_piece;
+                    int start_piece, end_piece;
+                    if (state::side == white)
+                    {
+                        start_piece = p;
+                        end_piece = k;
+                    }
+                    else
+                    {
+                        start_piece = P;
+                        end_piece = K;
+                    }
 
+                    for (int piece_type = start_piece; piece_type <= end_piece; piece_type++)
+                    {
+                        if (is_occupied(state::bitboards[piece_type], target_square))
+                        {
+                            target_piece = piece_type;
+                            // for some reason, break makes it slower
+                            // break;
+                        }
+                    }
+                    // capture move
+                    add_move(move_list, encode_move(source_square, target_square, piece, 0, target_piece, 0, 0, 0));
+                }
                 // pop ls1b in current attacks set
                 pop_bit(attacks, target_square);
             }
