@@ -21,7 +21,7 @@ using std::endl;
 // Names for white, black, rook and bishop
 enum {white, black, both};
 enum {rook, bishop};
-enum {P, N, B, R, Q, K, p, n, b, r, q, k};
+enum {P, N, B, R, Q, K, p, n, b, r, q, k, no_piece};
 enum {wk = 1, wq = 2, bk = 4, bq = 8};
 
 // Defining constant names to refer to corresponding index

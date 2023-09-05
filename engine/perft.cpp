@@ -22,9 +22,19 @@ void perft::test(int depth)
     for (int move_count = 0; move_count < move_list->size; move_count++)
     {   
         int current_move = move_list->array[move_count];
+        int captured_piece = no_piece;
+        if(is_capture(current_move)) {
+            for (int piece_type = P; piece_type <= k; piece_type++)
+            {
+                if(is_occupied(state::bitboards[piece_type], get_target(current_move))) {
+                    captured_piece = piece_type;
+                    break;
+                }
+            }
+        }
 
         // Preserve board state
-        copy_board();
+        copy_board(current_move, captured_piece);
         
         // make move
         if (!board::make_move(current_move))

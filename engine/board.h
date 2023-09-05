@@ -4,17 +4,120 @@
 #include "movegen.h"
 
 // Macros for copying and reversing the current board state
-#define copy_board()                                                          \
-    U64 bitboards_copy[12], occupancies_copy[3];                              \
-    int side_copy, en_passant_copy, castle_copy;                              \
-    memcpy(bitboards_copy, state::bitboards, size_of_bitboards);       \
-    memcpy(occupancies_copy, state::occupancies, size_of_occupancies); \
-    side_copy = state::side, en_passant_copy = state::en_passant, castle_copy = state::castle;
+#define copy_board(move, captured_piece)                                                          \
+    int side_copy, en_passant_copy, castle_copy, move_copy, captured_piece_copy;                              \
+    side_copy = state::side, en_passant_copy = state::en_passant, castle_copy = state::castle; \
+    move_copy = move, captured_piece_copy = captured_piece; \
+
+
+    // Used to update the occupancy bitboards
+    static inline void update_occupancies()
+    {
+        state::occupancies[both] = (state::occupancies[white] | state::occupancies[black]);
+    }
+
+
+    // Used to make a move on the board
+    static inline void undo_move(int move, int captured_piece)
+    {
+        if(move == -1) return;
+        
+        int source = get_source(move);
+        int target = get_target(move);
+        int piece = get_piece(move);
+        int promotion_piece_type = get_promotion_piece_type(move);
+
+
+        
+        // Move piece
+        pop_bit(state::bitboards[promotion_piece_type ? promotion_piece_type : piece], target);
+        pop_bit(state::occupancies[state::side], target);
+        set_bit(state::bitboards[piece], source);
+        set_bit(state::occupancies[state::side], source);
+
+        // If the move is en passant, remove the en passant-ed piece
+        if (is_en_passant(move))
+        {
+            if (state::side == white)
+            {
+                set_bit(state::bitboards[p], target + 8);
+                set_bit(state::occupancies[black], target + 8);
+            }
+            else
+            {
+                set_bit(state::bitboards[P], target - 8);
+                set_bit(state::occupancies[white], target - 8);
+            }
+        }
+
+        // If move is a capture, remove the attacked piece
+        // Important else, which saves running time
+        else if (is_capture(move))
+        {
+            
+            set_bit(state::bitboards[captured_piece], target);
+            set_bit(state::occupancies[state::side ^ 1], target);
+
+        }
+
+        // Set en passant square if a double pawn push was made
+        // Else is used to save time
+        //else if (is_double_pawn_push(move))
+        //{
+        //    state::side == white ? state::en_passant = target + 8 : state::en_passant = target - 8;
+        //}
+
+        else if (is_castling(move))
+        {
+            switch (target)
+            {
+            case g1:
+                // If king side
+                set_bit(state::bitboards[R], h1);
+                set_bit(state::occupancies[white], h1);
+                pop_bit(state::bitboards[R], f1);
+                pop_bit(state::occupancies[white], f1);
+                break;
+
+            case c1:
+                // If queen side
+                set_bit(state::bitboards[R], a1);
+                set_bit(state::occupancies[white], a1);
+                pop_bit(state::bitboards[R], d1);
+                pop_bit(state::occupancies[white], d1);
+                break;
+
+            case g8:
+                // If king side
+                set_bit(state::bitboards[r], h8);
+                set_bit(state::occupancies[black], h8);
+                pop_bit(state::bitboards[r], f8);
+                pop_bit(state::occupancies[black], f8);
+                break;
+
+            case c8:
+                // If queen side
+                set_bit(state::bitboards[r], a8);
+                set_bit(state::occupancies[black], a8);
+                pop_bit(state::bitboards[r], d8);
+                pop_bit(state::occupancies[black], d8);
+                break;
+            }
+        }
+
+        // Update castling rights
+        //state::castle &= movegen::castling_rights[source];
+        //state::castle &= movegen::castling_rights[target];
+
+        // Update occupancies
+        update_occupancies();
+    }
+
+
 
 #define revert_board()                                                        \
-    memcpy(state::bitboards, bitboards_copy, size_of_bitboards);       \
-    memcpy(state::occupancies, occupancies_copy, size_of_occupancies); \
-    state::side = side_copy, state::en_passant = en_passant_copy, state::castle = castle_copy;
+    state::side = side_copy, state::en_passant = en_passant_copy, state::castle = castle_copy; \
+    undo_move(move_copy, captured_piece_copy); \
 
 /*
     The board namespace contains the board state
@@ -36,11 +139,6 @@ namespace board
     // Used to set position from a fen string
     void parse_fen(std::string);
 
-    // Used to update the occupancy bitboards
-    static inline void update_occupancies()
-    {
-        state::occupancies[both] = (state::occupancies[white] | state::occupancies[black]);
-    }
 
     static void populate_occupancies()
     {
@@ -571,16 +669,30 @@ namespace board
     // Used to make a move on the board
     static inline int make_move(int move)
     {
+        
 
         // Reset the en passant square
         state::en_passant = no_sq;
 
-        copy_board();
+        
 
         int source = get_source(move);
         int target = get_target(move);
         int piece = get_piece(move);
         int promotion_piece_type = get_promotion_piece_type(move);
+
+        int captured_piece = no_piece;
+        if(is_capture(move)) {
+            for (int piece_type = P; piece_type <= k; piece_type++)
+            {
+                if(is_occupied(state::bitboards[piece_type], target)) {
+                    captured_piece = piece_type;
+                    break;
+                }
+            }
+        }
+
+        copy_board(move, captured_piece);
 
         // Move piece
         pop_bit(state::bitboards[piece], source);
@@ -747,7 +859,20 @@ namespace board
 
         for (int i = 0; i < move_list->size; i++)
         {
-            copy_board();
+            int current_move = move_list->array[i];
+
+            int captured_piece = no_piece;
+            if(is_capture(current_move)) {
+                for (int piece_type = P; piece_type <= k; piece_type++)
+                {
+                    if(is_occupied(state::bitboards[piece_type], get_target(current_move))) {
+                        captured_piece = piece_type;
+                        break;
+                    }
+                }
+            }
+
+            copy_board(current_move, captured_piece);
 
             ++ply;
 
@@ -804,9 +929,10 @@ namespace board
 
         // Null-move pruning
         // https://web.archive.org/web/20071031095933/http://www.brucemo.com/compchess/programming/nullmove.htm
+        /*
         if (depth >= 3 && !in_check && ply)
         {
-            copy_board();
+            copy_board(-1, no_piece);
 
             // Imitates board as if it is opponent to move
             state::side ^= 1;
@@ -820,7 +946,7 @@ namespace board
 
             if (score >= beta)
                 return beta;
-        }
+        }*/
 
         // Keep track of the amount of legal moves
         int legal_moves = 0;
@@ -832,11 +958,22 @@ namespace board
 
         for (int i = 0; i < move_list->size; i++)
         {
-            copy_board();
+            int current_move = move_list->array[i];
+            int captured_piece = no_piece;
+            if(is_capture(current_move)) {
+                for (int piece_type = P; piece_type <= k; piece_type++)
+                {
+                    if(is_occupied(state::bitboards[piece_type], get_target(current_move))) {
+                        captured_piece = piece_type;
+                        break;
+                    }
+                }
+            }
+            copy_board(current_move, captured_piece);
 
+            
             ++ply;
 
-            int current_move = move_list->array[i];
 
             // If move is illegal
             if (!make_move(current_move))
@@ -844,6 +981,8 @@ namespace board
                 --ply;
                 continue;
             }
+
+            
 
             // Else
             ++legal_moves;

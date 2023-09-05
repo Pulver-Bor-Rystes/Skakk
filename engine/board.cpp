@@ -121,6 +121,7 @@ void board::search_position(int depth)
     
     for (int current_depth = 1; current_depth <= depth; current_depth++)
     {
+        
         if(stop_calculating || found_checkmate) break;
 
         memcpy(&candidate_pv_table_copy, &pv_table, sizeof(pv_table));
