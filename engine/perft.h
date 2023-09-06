@@ -28,7 +28,7 @@ namespace perft {
         
 
             // Preserve board state
-            copy_board(current_move);
+            copy_state(current_move);
             
             // Makes move and skips if illegal
             if(!board::make_move(current_move)) continue;
@@ -38,7 +38,7 @@ namespace perft {
 
 
             // Retrieves the previous position
-            revert_board();
+            revert_state();
         }
     }
 

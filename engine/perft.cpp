@@ -25,7 +25,7 @@ void perft::test(int depth)
         
 
         // Preserve board state
-        copy_board(current_move);
+        copy_state(current_move);
         
         // make move
         if (!board::make_move(current_move))
@@ -42,7 +42,7 @@ void perft::test(int depth)
         long old_nodes = nodes - cummulative_nodes;
         
         // take back
-        revert_board();
+        revert_state();
 
         
         cout << "     move: " << format::move(current_move) << "  nodes: " << old_nodes << endl;

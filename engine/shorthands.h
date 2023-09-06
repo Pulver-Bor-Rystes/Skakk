@@ -66,14 +66,15 @@ struct moves
 /*
           binary move bits                               hexidecimal constants
 
-    0000 0000 0000 0000 0011 1111    source square       0x3f
-    0000 0000 0000 1111 1100 0000    target square       0xfc0
-    0000 0000 1111 0000 0000 0000    piece               0xf000
-    0000 1111 0000 0000 0000 0000    promoted piece      0xf0000
-    0001 0000 0000 0000 0000 0000    capture flag        0x100000
-    0010 0000 0000 0000 0000 0000    double push flag    0x200000
-    0100 0000 0000 0000 0000 0000    en passant flag     0x400000
-    1000 0000 0000 0000 0000 0000    castling flag       0x800000
+    0000 0000 0000 0000 0000 0011 1111    source square       0x3f
+    0000 0000 0000 0000 1111 1100 0000    target square       0xfc0
+    0000 0000 0000 1111 0000 0000 0000    piece               0xf000
+    0000 0000 1111 0000 0000 0000 0000    promoted piece      0xf0000
+    0000 1111 0000 0000 0000 0000 0000    capture flag        0x100000
+    0001 0000 0000 0000 0000 0000 0000    double push flag    0x200000
+    0010 0100 0000 0000 0000 0000 0000    en passant flag     0x400000
+    0100 1000 0000 0000 0000 0000 0000    castling flag       0x800000
+111 1000 0000 0000 0000 0000 0000 0000
 */
 
 // Macros to extract move information
@@ -86,6 +87,8 @@ struct moves
 #define is_double_pawn_push(move) (move & 0x1000000)
 #define is_en_passant(move) (move & 0x2000000)
 #define is_castling(move) (move & 0x4000000)
+#define get_castle(move) ((move & 0x78000000) >> 27)
+
 
 // Macro to encode move
 #define encode_move(source, target, piece, promoted, capture, double_pawn_push, en_passant, castling) \
