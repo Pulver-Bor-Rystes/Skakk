@@ -2,12 +2,35 @@
 #include "shorthands.h"
 #include "utils.h"
 #include "movegen.h"
+// Used to find out if a given square is attacked
+    static inline int is_square_attacked(int square, int side)
+    {
 
+        // The key point is that any piece (with the exception of pawns) can reach the same square it moved from
+        // A pawn of opposite color should overlap with one of the white pawns' attacks
+        if (side == white && (movegen::get_pawn_attacks(black, square) & state::bitboards[P]))
+            return 1;
+        if (side == black && (movegen::get_pawn_attacks(white, square) & state::bitboards[p]))
+            return 1;
+        if (movegen::get_knight_attacks(square) & ((side == white) ? state::bitboards[N] : state::bitboards[n]))
+            return 1;
+        if (movegen::get_king_attacks(square) & ((side == white) ? state::bitboards[K] : state::bitboards[k]))
+            return 1;
+
+        // Sliders rely on current occupancy
+        if (movegen::get_bishop_attacks(square, state::occupancies[both]) & ((side == white) ? state::bitboards[B] : state::bitboards[b]))
+            return 1;
+        if (movegen::get_rook_attacks(square, state::occupancies[both]) & ((side == white) ? state::bitboards[R] : state::bitboards[r]))
+            return 1;
+        if (movegen::get_queen_attacks(square, state::occupancies[both]) & ((side == white) ? state::bitboards[Q] : state::bitboards[q]))
+            return 1;
+
+        return 0;
+    }
 // Macros for copying and reversing the current board state
 #define copy_board(move)                                                          \
-    int side_copy, en_passant_copy, castle_copy, move_copy;                             \
-    side_copy = state::side, en_passant_copy = state::en_passant, castle_copy = state::castle; \
-    move_copy = move; \
+    int castle_copy = state::castle; \
+    int move_copy = move; \
 
 
     // Used to update the occupancy bitboards
@@ -20,13 +43,15 @@
     // Used to make a move on the board
     static inline void undo_move(int move)
     {
-        if(move == -1) return;
+        state::side ^= 1;
         
         int source = get_source(move);
         int target = get_target(move);
         int piece = get_piece(move);
         int promotion_piece_type = get_promotion_piece_type(move);
         int captured_piece = get_captured_piece_type(move);
+
+        
 
         
         // Move piece
@@ -38,6 +63,8 @@
         // If the move is en passant, remove the en passant-ed piece
         if (is_en_passant(move))
         {
+            state::en_passant = target;
+
             if (state::side == white)
             {
                 set_bit(state::bitboards[p], target + 8);
@@ -59,13 +86,6 @@
             set_bit(state::occupancies[state::side ^ 1], target);
 
         }
-
-        // Set en passant square if a double pawn push was made
-        // Else is used to save time
-        //else if (is_double_pawn_push(move))
-        //{
-        //    state::side == white ? state::en_passant = target + 8 : state::en_passant = target - 8;
-        //}
 
         else if (is_castling(move))
         {
@@ -111,12 +131,14 @@
 
         // Update occupancies
         update_occupancies();
+
+        
     }
 
 
 
 #define revert_board()                                                        \
-    state::side = side_copy, state::en_passant = en_passant_copy, state::castle = castle_copy; \
+    state::castle = castle_copy; \
     undo_move(move_copy); \
 
 /*
@@ -157,31 +179,7 @@ namespace board
         update_occupancies();
     }
 
-    // Used to find out if a given square is attacked
-    static inline int is_square_attacked(int square, int side)
-    {
-
-        // The key point is that any piece (with the exception of pawns) can reach the same square it moved from
-        // A pawn of opposite color should overlap with one of the white pawns' attacks
-        if (side == white && (movegen::get_pawn_attacks(black, square) & state::bitboards[P]))
-            return 1;
-        if (side == black && (movegen::get_pawn_attacks(white, square) & state::bitboards[p]))
-            return 1;
-        if (movegen::get_knight_attacks(square) & ((side == white) ? state::bitboards[N] : state::bitboards[n]))
-            return 1;
-        if (movegen::get_king_attacks(square) & ((side == white) ? state::bitboards[K] : state::bitboards[k]))
-            return 1;
-
-        // Sliders rely on current occupancy
-        if (movegen::get_bishop_attacks(square, state::occupancies[both]) & ((side == white) ? state::bitboards[B] : state::bitboards[b]))
-            return 1;
-        if (movegen::get_rook_attacks(square, state::occupancies[both]) & ((side == white) ? state::bitboards[R] : state::bitboards[r]))
-            return 1;
-        if (movegen::get_queen_attacks(square, state::occupancies[both]) & ((side == white) ? state::bitboards[Q] : state::bitboards[q]))
-            return 1;
-
-        return 0;
-    }
+    
 
     static int piece_array[64];
 
@@ -906,16 +904,18 @@ namespace board
         // Update occupancies
         update_occupancies();
 
+        // Otherwise, switch sides and return legal move
+        state::side ^= 1;
         // Check that the king is not in check
-        if (is_square_attacked((state::side == white) ? movegen::get_ls1b(state::bitboards[K]) : movegen::get_ls1b(state::bitboards[k]), state::side ^ 1))
+        if (is_square_attacked((state::side == black) ? movegen::get_ls1b(state::bitboards[K]) : movegen::get_ls1b(state::bitboards[k]), state::side))
         {
             // If it is, revert back and return illegal move
             revert_board();
             return 0;
         }
 
-        // Otherwise, switch sides and return legal move
-        state::side ^= 1;
+        
+
         return 1;
     }
 
@@ -1028,10 +1028,10 @@ namespace board
 
         // Null-move pruning
         // https://web.archive.org/web/20071031095933/http://www.brucemo.com/compchess/programming/nullmove.htm
-        
         if (depth >= 3 && !in_check && ply)
         {
-            copy_board(-1);
+            int side_copy = state::side;
+            int en_passant_copy = state::en_passant;
 
             // Imitates board as if it is opponent to move
             state::side ^= 1;
@@ -1039,7 +1039,8 @@ namespace board
 
             int score = -negamax(-beta, -beta + 1, depth - 1 - reduced_depth_factor);
 
-            revert_board();
+            state::side = side_copy;
+            state::en_passant = en_passant_copy;
 
             if(stop_calculating) return 0;
 
@@ -1072,7 +1073,6 @@ namespace board
                 continue;
             }
 
-            
 
             // Else
             ++legal_moves;

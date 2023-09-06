@@ -15,17 +15,11 @@ int main()
 
     if (debugging)
     {
-        board::parse_fen(tricky_position);
-        print::game();
+        board::parse_fen(start_position);
 
 
 
-        moves move_list[1];
-        board::generate_moves(move_list);
-        print::all_moves(move_list);
-        print::game();
-
-        cout << is_capture(move_list->array[0]);
+        board::search_position(8);
     }
 
     else

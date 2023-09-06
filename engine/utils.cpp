@@ -57,7 +57,7 @@ void print::attacked_squares(int side) {
     U64 result = 0ULL;
     for (int square = 0; square < 64; square++)
     {
-        if(board::is_square_attacked(square, side)) set_bit(result, square);
+        if(is_square_attacked(square, side)) set_bit(result, square);
     }
     
     print::bitboard(result);
