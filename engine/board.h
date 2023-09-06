@@ -13,9 +13,9 @@ static inline int is_square_attacked(int square, int side)
         return 1;
     if (side == black && (movegen::get_pawn_attacks(white, square) & state::bitboards[p]))
         return 1;
-    if (movegen::get_knight_attacks(square) & ((side == white) ? state::bitboards[N] : state::bitboards[n]))
+    if (movegen::get_knight_moves(square) & ((side == white) ? state::bitboards[N] : state::bitboards[n]))
         return 1;
-    if (movegen::get_king_attacks(square) & ((side == white) ? state::bitboards[K] : state::bitboards[k]))
+    if (movegen::get_king_moves(square) & ((side == white) ? state::bitboards[K] : state::bitboards[k]))
         return 1;
 
     // Sliders rely on current occupancy
@@ -36,9 +36,6 @@ static inline int is_square_attacked(int square, int side)
 #define revert_state() \
     undo_move(move_copy);
 
-// Macro to update the occupancy bitboards
-#define update_occupancies() \
-    state::occupancies[both] = (state::occupancies[white] | state::occupancies[black]);
 
 // Used to make a move on the board
 static inline void undo_move(int move)
@@ -124,7 +121,7 @@ static inline void undo_move(int move)
     state::castle = get_castle(move);
 
     // Update occupancies
-    update_occupancies();
+    state::merge_occupancies();
 }
 
 /*
@@ -141,25 +138,7 @@ namespace board
         ++move_list->size;
     }
 
-    // Used to set position from a fen string
-    void parse_fen(std::string);
-
-    static void populate_occupancies()
-    {
-        memset(state::occupancies, 0ULL, size_of_occupancies);
-
-        for (int piece_type = P; piece_type <= K; piece_type++)
-        {
-            state::occupancies[white] |= state::bitboards[piece_type];
-        }
-
-        for (int piece_type = p; piece_type <= k; piece_type++)
-        {
-            state::occupancies[black] |= state::bitboards[piece_type];
-        }
-
-        update_occupancies();
-    }
+    
 
     static int piece_array[64];
 
@@ -441,7 +420,7 @@ namespace board
             source_square = movegen::get_ls1b(bitboard);
 
             // init piece attacks in order to get set of target squares
-            attacks = movegen::get_knight_attacks(source_square) & ((state::side == white) ? ~state::occupancies[white] : ~state::occupancies[black]);
+            attacks = movegen::get_knight_moves(source_square) & ((state::side == white) ? ~state::occupancies[white] : ~state::occupancies[black]);
 
             // loop over target squares available from generated attacks
             while (attacks)
@@ -670,7 +649,7 @@ namespace board
             source_square = movegen::get_ls1b(bitboard);
 
             // init piece attacks in order to get set of target squares
-            attacks = movegen::get_king_attacks(source_square) & ((state::side == white) ? ~state::occupancies[white] : ~state::occupancies[black]);
+            attacks = movegen::get_king_moves(source_square) & ((state::side == white) ? ~state::occupancies[white] : ~state::occupancies[black]);
 
             // loop over target squares available from generated attacks
             while (attacks)
@@ -874,11 +853,11 @@ namespace board
         }
 
         // Update castling rights
-        state::castle &= movegen::castling_rights[source];
-        state::castle &= movegen::castling_rights[target];
+        state::castle &= castling_rights[source];
+        state::castle &= castling_rights[target];
 
         // Update occupancies
-        update_occupancies();
+        state::merge_occupancies();
 
         // Otherwise, switch sides and return legal move
         state::side ^= 1;

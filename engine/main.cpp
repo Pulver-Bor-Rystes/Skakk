@@ -15,7 +15,7 @@ int main()
 
     if (debugging)
     {
-        board::parse_fen(start_position);
+        parse::fen(start_position);
 
 
         cout << state::castle << endl;

@@ -1,0 +1,61 @@
+lav global vars
+
+//move til structs
+
+//nyt flag captured piece til performance boost
+
+//nyt flag score som udregnes med det samme
+
+//use priority queue instead of sorted list
+
+//lav custom comparator
+
+
+1.
+modify merge_occupancies
+
+ændr derfor set_bit og pop_bit til også at tilføje bits til occupancy
+
+det gør at følgende kan fjernes fra merge_occupancies:
+
+for (int piece_type = P; piece_type <= K; piece_type++)
+{
+    state::occupancies[white] |= state::bitboards[piece_type];
+}
+
+for (int piece_type = p; piece_type <= k; piece_type++)
+{
+    state::occupancies[black] |= state::bitboards[piece_type];
+} 
+
+
+og merge_occupancies kan gøres til macro
+
+
+idéer:
+
+
+lav captured piece en del af move info
+
+2.
+get rid of copy/revert board med en undo_move(int move) funktion
+der er løst baseret på make_move
+lav først:
+bitboards, occupancies og side
+
+der kan optimeres:
+score move
+make move
+
+derefter:
+piece_array
+
+
+derefter:
+en_passant og castle
+
+*/
+
+foretagede optimiseringer:
+merge_occupancies
+incremental copy og revert board

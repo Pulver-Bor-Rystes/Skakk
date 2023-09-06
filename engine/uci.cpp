@@ -109,40 +109,40 @@ void uci::parse_position(std::string input)
         // Get position
         if (startpos_i != std::string::npos)
         {
-            board::parse_fen(start_position);
+            parse::fen(start_position);
         }
         else if(trickypos_i != std::string::npos) 
         {
-            board::parse_fen(tricky_position);
+            parse::fen(tricky_position);
         }
         else if(killerpos_i != std::string::npos) 
         {
-            board::parse_fen(killer_position);
+            parse::fen(killer_position);
         }
         else if(cmkpos_i != std::string::npos) 
         {
-            board::parse_fen(cmk_position);
+            parse::fen(cmk_position);
         }
         else if(rookpos_i != std::string::npos) 
         {
-            board::parse_fen(rook_position);
+            parse::fen(rook_position);
         }
         else if(promotionpos_i != std::string::npos) 
         {
-            board::parse_fen(promotion_position);
+            parse::fen(promotion_position);
         }
         else if(checkmatepos_i != std::string::npos) 
         {
-            board::parse_fen(checkmate_position);
+            parse::fen(checkmate_position);
         }
         else if(emptypos_i != std::string::npos) 
         {
-            board::parse_fen(empty_position);
+            parse::fen(empty_position);
         }
 
         else if (fen_i != std::string::npos)
         {
-            board::parse_fen(input.substr(fen_i + 4));
+            parse::fen(input.substr(fen_i + 4));
         }
 
         // Make moves if specified

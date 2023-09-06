@@ -6,6 +6,10 @@
     for printing various chess elements
 */
 
+namespace parse {
+    void fen(std::string input);
+}
+
 namespace format {
     std::string eval(int eval);
     std::string move(int move);

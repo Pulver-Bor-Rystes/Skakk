@@ -12,32 +12,6 @@ using std::endl;
 // Defining custom type U64, consisting of 64 zeroes
 #define U64 unsigned long long
 
-namespace state {
-    // Piece bitboards
-    extern U64 bitboards[12];
-
-    // Occupancy bitboards
-    extern U64 occupancies[3];
-
-    // Side to move
-    extern int side;
-
-    // En_passant square
-    extern int en_passant;
-
-    // Castling rights
-    extern int castle;
-}
-
-static const int size_of_bitboards = sizeof(state::bitboards);
-static const int size_of_occupancies = sizeof(state::occupancies);
-
-// Bit manipulation macros, basically shorthands
-#define is_occupied(bitboard, square) (bitboard & (1ULL << square))
-#define get_bit(bitboard, square) ((bitboard & (1ULL << square)) ? 1 : 0)
-#define set_bit(bitboard, square) (bitboard |= (1ULL << square))
-#define pop_bit(bitboard, square) (is_occupied(bitboard, square) ? bitboard ^= (1ULL << square) : 0)
-
 // Names for white, black, rook and bishop
 enum {white, black, both};
 enum {rook, bishop};
@@ -55,6 +29,59 @@ enum {
     a2, b2, c2, d2, e2, f2, g2, h2,
     a1, b1, c1, d1, e1, f1, g1, h1, no_sq
 };
+
+static const int size_of_bitboards = 96;
+static const int size_of_occupancies = 24;
+
+namespace state {
+    // Piece bitboards
+    extern U64 bitboards[12];
+
+    // Occupancy bitboards
+    extern U64 occupancies[3];
+
+    // Side to move
+    extern int side;
+
+    // En_passant square
+    extern int en_passant;
+
+    // Castling rights
+    extern int castle;
+
+    static void merge_occupancies() {
+    state::occupancies[both] = (state::occupancies[white] | state::occupancies[black]);
+    }
+
+    static void populate_occupancies()
+    {
+        memset(state::occupancies, 0ULL, size_of_occupancies);
+
+        for (int piece_type = P; piece_type <= K; piece_type++)
+        {
+            state::occupancies[white] |= state::bitboards[piece_type];
+        }
+
+        for (int piece_type = p; piece_type <= k; piece_type++)
+        {
+            state::occupancies[black] |= state::bitboards[piece_type];
+        }
+
+        merge_occupancies();
+    }
+}
+
+
+
+
+
+// Bit manipulation macros, basically shorthands
+#define is_occupied(bitboard, square) (bitboard & (1ULL << square))
+#define get_bit(bitboard, square) ((bitboard & (1ULL << square)) ? 1 : 0)
+#define set_bit(bitboard, square) (bitboard |= (1ULL << square))
+#define pop_bit(bitboard, square) (is_occupied(bitboard, square) ? bitboard ^= (1ULL << square) : 0)
+
+
 
 struct moves
 {
@@ -320,6 +347,17 @@ static const int mvv_lva[12][12] = {
 	101, 201, 301, 401, 501, 601,  101, 201, 301, 401, 501, 601,
 	100, 200, 300, 400, 500, 600,  100, 200, 300, 400, 500, 600
 };
+
+// Castling rights update constants
+const int castling_rights[64] = {
+    7, 15, 15, 15, 3, 15, 15, 11,
+    15, 15, 15, 15, 15, 15, 15, 15,
+    15, 15, 15, 15, 15, 15, 15, 15,
+    15, 15, 15, 15, 15, 15, 15, 15,
+    15, 15, 15, 15, 15, 15, 15, 15,
+    15, 15, 15, 15, 15, 15, 15, 15,
+    15, 15, 15, 15, 15, 15, 15, 15,
+    13, 15, 15, 15, 12, 15, 15, 14};
 
 // Init move sorting helper arrays
 static int killer_moves[2][246];
