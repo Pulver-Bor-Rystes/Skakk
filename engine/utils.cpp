@@ -212,9 +212,11 @@ void print::game() {
                     break;
                 }
             }
-
-            cout << " " << (piece == -1 ? "." : ascii_pieces[piece]);
-
+            #if defined(WIN64) || defined(WIN32)
+                cout << " " << (piece == -1 ? "." : ascii_pieces[piece]);
+            #else 
+                cout << " " << (piece == -1 ? "." : unicode_pieces[piece]);
+            #endif
         }
 
         cout << "\n";
