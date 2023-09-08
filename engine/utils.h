@@ -1,14 +1,10 @@
 #pragma once
 #include "shorthands.h"
 
-/*
-    The print namespace contains useful functions
-    for printing various chess elements
-*/
-
 namespace parse {
     void fen(std::string input);
 }
+
 namespace format {
     std::string eval(int eval);
     std::string move(int move);
@@ -25,20 +21,6 @@ namespace print {
     void game();
     void attacked_squares(int side);
 }
-
-namespace rng
-{
-    // Current state, initialized to a large integer
-    extern unsigned int random_state;
-
-    // Generates a magic number for slider piece moves
-    U64 generate_magic_number_contender();
-    
-    unsigned int generate_32_bit();
-    unsigned int generate_64_bit();
-    
-}
-
 
 /*
     The rng namespace is used for tasks relating to randomness

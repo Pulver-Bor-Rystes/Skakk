@@ -50,7 +50,7 @@ namespace state {
     extern int castle;
 
     static void merge_occupancies() {
-    state::occupancies[both] = (state::occupancies[white] | state::occupancies[black]);
+        state::occupancies[both] = (state::occupancies[white] | state::occupancies[black]);
     }
 
     static void populate_occupancies()
