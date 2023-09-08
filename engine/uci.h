@@ -1,5 +1,5 @@
 #pragma once
-#include "shorthands.h"
+#include <string>
 
 /*
     The uci namespace is used for defining necessary

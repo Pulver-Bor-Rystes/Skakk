@@ -1,11 +1,6 @@
-#include "shorthands.h"
-#include "rng.h"
-#include "movegen.h"
 #include "perft.h"
 #include "uci.h"
-#include "utils.h"
 #include "board.h"
-
 
 int main()
 {

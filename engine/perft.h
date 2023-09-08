@@ -4,7 +4,6 @@
 /*
     The perft namespace is used for performance testing
 */
-
 namespace perft {
 
     // Amount of reached nodes

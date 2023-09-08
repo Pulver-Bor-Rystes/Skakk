@@ -1,5 +1,6 @@
 #include "movegen.h"
-#include "rng.h"
+#include "shorthands.h"
+#include "utils.h"
 
 namespace movegen
 {

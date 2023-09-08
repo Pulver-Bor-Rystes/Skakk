@@ -1,5 +1,8 @@
 #pragma once
-#include "shorthands.h"
+#include <string>
+#define U64 unsigned long long
+
+struct moves;
 
 /*
     The print namespace contains useful functions
@@ -22,6 +25,20 @@ namespace print {
     void game();
     void attacked_squares(int side);
 }
+
+namespace rng
+{
+    // Current state, initialized to a large integer
+    extern unsigned int random_state;
+
+    // Generates a magic number for slider piece moves
+    U64 generate_magic_number_contender();
+    
+    unsigned int generate_32_bit();
+    unsigned int generate_64_bit();
+    
+}
+
 
 
 class Timer {

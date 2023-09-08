@@ -14,18 +14,18 @@ all: $(OUTPUT)
 # Compile the source files with debugging information
 debug: $(SRC_FILES)
 	@echo Compiling debugging program...
-	@$(CXX) $(CXXFLAGS_DEBUG) -o $(OUTPUT)_debug $(SRC_FILES)
+	$(CXX) $(CXXFLAGS_DEBUG) -o $(OUTPUT)_debug $(SRC_FILES)
 	@echo Done!
 
 # Compile the source files with optimization
 optimized: $(SRC_FILES)
 	@echo Compiling optimized program...
-	@$(CXX) $(CXXFLAGS_OPTIMIZED) -o $(OUTPUT) $(SRC_FILES)
+	$(CXX) $(CXXFLAGS_OPTIMIZED) -o $(OUTPUT) $(SRC_FILES)
 	@echo Done!
 
 dir: $(SRC_FILES)
 	@echo Compiling optimized program for lichess engine folder...
-	@$(CXX) $(CXXFLAGS_OPTIMIZED) $(SRC_FILES) -o $(OUTPUT_DIR)/$(OUTPUT)
+	$(CXX) $(CXXFLAGS_OPTIMIZED) $(SRC_FILES) -o $(OUTPUT_DIR)/$(OUTPUT)
 	@echo Done!
 
 run: optimized

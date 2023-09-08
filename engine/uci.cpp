@@ -1,6 +1,5 @@
 #include "uci.h"
 #include "board.h"
-#include "utils.h"
 #include "perft.h"
 #include <sstream>
 #include <vector>

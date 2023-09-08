@@ -1,5 +1,4 @@
 #include "perft.h"
-#include "shorthands.h"
 #include "utils.h"
 
 long perft::nodes = 0;

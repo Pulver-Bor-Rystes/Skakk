@@ -1,7 +1,4 @@
 #include "board.h"
-#include "utils.h"
-
-
 
 void board::search_position(int depth)
 {

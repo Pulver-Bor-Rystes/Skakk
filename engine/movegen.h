@@ -1,11 +1,10 @@
 #pragma once
-#include "shorthands.h"
+#define U64 unsigned long long
 
 /*
     The movegen namespace contains useful functions and variables
     relating to the move generation proces
 */
-
 namespace movegen
 {
 
