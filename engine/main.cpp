@@ -1,3 +1,5 @@
+#include "shorthands.h"
+#include "movegen.h"
 #include "perft.h"
 #include "uci.h"
 #include "board.h"
