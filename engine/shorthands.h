@@ -142,9 +142,6 @@ static const std::string index_to_square[] = {
 // ASCII pieces
 static const std::string ascii_pieces[] = {"P", "N", "B", "R", "Q", "K", "p", "n", "b", "r", "q", "k"};
 
-// Unicode pieces (can't be printed to windows console)
-static const std::string unicode_pieces[12] = {"♙", "♘", "♗", "♖", "♕", "♔", "♟︎", "♞", "♝", "♜", "♛", "♚"};
-
 static std::map<char, int> char_pieces = {
     {'P', P},
     {'N', N},
